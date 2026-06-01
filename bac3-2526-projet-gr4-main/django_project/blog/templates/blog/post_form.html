@@ -1,0 +1,631 @@
+{% extends "blog/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="container-fluid px-0">
+    <div class="content-section-full">
+        <form method="POST" id="postForm">
+            {% csrf_token %}
+            
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">
+                    {% if object %}Edit Article{% else %}New ICT Article{% endif %}
+                </legend>
+
+                {{ form.media }}  <!-- IMPORTANT: Inclure CKEditor media -->
+                
+                <!-- Main Fields avec CKEditor - version pleine largeur -->
+                <div class="row">
+                    <div class="col-12">
+                        {{ form.title|as_crispy_field }}
+                    </div>
+                </div>
+                
+                <!-- Summary avec CKEditor - pleine largeur -->
+                <div class="form-group-full">
+                    <label for="{{ form.summary.id_for_label }}" class="form-label-full">
+                        {{ form.summary.label }}
+                    </label>
+                    <div class="ckeditor-fullwidth">
+                        {{ form.summary }}
+                    </div>
+                    <small class="form-text text-muted">
+                        <i class="bi bi-info-circle"></i> Article
+                    </small>
+                </div>
+                
+                <!-- Problem Description avec CKEditor - pleine largeur -->
+                <div class="form-group-full">
+                    <label for="{{ form.problem_description.id_for_label }}" class="form-label-full">
+                        {{ form.problem_description.label }}
+                    </label>
+                    <div class="ckeditor-fullwidth">
+                        {{ form.problem_description }}
+                    </div>
+                    <small class="form-text text-muted">
+                        <i class="bi bi-info-circle"></i> Detailed description of the problem
+                    </small>
+                </div>
+                
+                <!-- Content avec CKEditor - pleine largeur -->
+                <div class="form-group-full">
+                    <label for="{{ form.content.id_for_label }}" class="form-label-full">
+                        {{ form.content.label }}
+                    </label>
+                    <div class="ckeditor-fullwidth">
+                        {{ form.content }}
+                    </div>
+                    <small class="form-text text-muted">
+                        <i class="bi bi-info-circle"></i> Solution and implementation details
+                    </small>
+                </div>
+
+                <!-- Status Field -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">Status</label>
+                            <select name="status" id="status-select" class="form-control">
+                                {% for value, label in form.status.field.choices %}
+                                    <option value="{{ value }}" {% if form.status.value == value %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Technical Categories with Searchable Combobox -->
+                <div class="form-group-full">
+                    <label class="form-label-full">Technical Categories</label>
+                    <div class="searchable-combobox" id="category-combobox">
+                        <div class="combobox-header">
+                            <input type="text" 
+                                   class="form-control combobox-search" 
+                                   placeholder="Search categories..." 
+                                   id="category-search">
+                        </div>
+                        <div class="combobox-options" id="category-options">
+                            {% for category in categories %}
+                                <div class="combobox-option" data-value="{{ category.id }}">
+                                    {{ category.name }}
+                                </div>
+                            {% empty %}
+                                <div class="no-results">No categories available</div>
+                            {% endfor %}
+                        </div>
+                        <div class="selected-items-container">
+                            <div class="selected-items-label">Selected Categories:</div>
+                            <div class="selected-items" id="selected-categories">
+                                {% if form.instance.pk and form.instance.categories.all %}
+                                    {% for category in form.instance.categories.all %}
+                                        <span class="selected-item" data-value="{{ category.id }}">
+                                            {{ category.name }}
+                                            <span class="remove-item">&times;</span>
+                                        </span>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="no-selection">No categories selected</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <!-- Hidden input for form submission -->
+                        <select name="categories" id="categories-input" multiple style="display: none;">
+                            {% if form.instance.pk %}
+                                {% for category in form.instance.categories.all %}
+                                    <option value="{{ category.id }}" selected>{{ category.name }}</option>
+                                {% endfor %}
+                            {% endif %}
+                        </select>
+                    </div>
+                </div>
+
+                <!-- ICT Components with Searchable Combobox -->
+                <div class="form-group-full">
+                    <label class="form-label-full">ICT Components</label>
+                    <div class="searchable-combobox" id="component-combobox">
+                        <div class="combobox-header">
+                            <input type="text" 
+                                   class="form-control combobox-search" 
+                                   placeholder="Search components..." 
+                                   id="component-search">
+                        </div>
+                        <div class="combobox-options" id="component-options">
+                            {% for component in components %}
+                                <div class="combobox-option" data-value="{{ component.id }}">
+                                    {{ component.name }}
+                                </div>
+                            {% empty %}
+                                <div class="no-results">No components available</div>
+                            {% endfor %}
+                        </div>
+                        <div class="selected-items-container">
+                            <div class="selected-items-label">Selected Components:</div>
+                            <div class="selected-items" id="selected-components">
+                                {% if form.instance.pk and form.instance.components.all %}
+                                    {% for component in form.instance.components.all %}
+                                        <span class="selected-item" data-value="{{ component.id }}">
+                                            {{ component.name }}
+                                            <span class="remove-item">&times;</span>
+                                        </span>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="no-selection">No components selected</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <!-- Hidden input for form submission -->
+                        <select name="components" id="components-input" multiple style="display: none;">
+                            {% if form.instance.pk %}
+                                {% for component in form.instance.components.all %}
+                                    <option value="{{ component.id }}" selected>{{ component.name }}</option>
+                                {% endfor %}
+                            {% endif %}
+                        </select>
+                    </div>
+                </div>
+
+            </fieldset>
+            <div class="form-group-full mt-4">
+                <button class="btn btn-primary" type="submit">
+                    <i class="bi bi-{% if object %}check-lg{% else %}upload{% endif %}"></i>
+                    {% if object %}Update{% else %}Create{% endif %}
+                </button>
+                <a class="btn btn-outline-secondary" href="{% url 'blog-home' %}">
+                    <i class="bi bi-x-circle"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+/* ===== POLICES ET TYPOGRAPHIE ===== */
+* {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ===== LAYOUT PLEINE LARGEUR ===== */
+.container-fluid {
+    max-width: 100%;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.content-section-full {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* ===== TITRES ===== */
+legend {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #0F3557;
+    border-bottom: 2px solid #2F6DA3;
+    padding-bottom: 0.5rem;
+}
+
+/* ===== FORM ELEMENTS PLEINE LARGEUR ===== */
+.form-group-full {
+    margin-bottom: 2rem;
+    width: 100%;
+}
+
+.form-label-full {
+    color: #0F3557;
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+    display: block;
+    width: 100%;
+}
+
+.ckeditor-fullwidth {
+    width: 100% !important;
+    margin-bottom: 1rem;
+}
+
+/* ===== CKEDITOR PLEINE LARGEUR ===== */
+.cke_chrome {
+    width: 100% !important;
+    max-width: 100% !important;
+    border: 1px solid #e1e8ed !important;
+    border-radius: 10px !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
+    overflow: hidden !important;
+}
+
+.cke_inner {
+    width: 100% !important;
+}
+
+.cke_contents {
+    width: 100% !important;
+    min-height: 250px !important;
+    padding: 20px !important;
+    font-size: 1rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.cke_wysiwyg_frame, 
+.cke_wysiwyg_div {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* ===== COMBOBOXES PLEINE LARGEUR ===== */
+.searchable-combobox {
+    border: 1px solid #e1e8ed;
+    border-radius: 10px;
+    background: white;
+    position: relative;
+    margin-bottom: 1rem;
+    width: 100%;
+    font-size: 0.95rem;
+}
+
+.combobox-header {
+    display: flex;
+    gap: 0.5rem;
+    padding: 1rem;
+    border-bottom: 1px solid #e1e8ed;
+    background: #0F3557;
+    border-radius: 10px 10px 0 0;
+    cursor: pointer;
+    width: 100%;
+}
+
+.combobox-header .combobox-search {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: white;
+    font-weight: 500;
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.combobox-header .combobox-search::placeholder {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.combobox-options {
+    max-height: 300px;
+    overflow-y: auto;
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #e1e8ed;
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+    z-index: 1000;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    width: 100%;
+}
+
+.combobox-options.active {
+    display: block;
+}
+
+.combobox-option {
+    padding: 1rem 1.25rem;
+    cursor: pointer;
+    border-bottom: 1px solid #f8f9fa;
+    transition: all 0.2s;
+    font-size: 0.95rem;
+}
+
+.combobox-option:hover {
+    background-color: #2F6DA3;
+    color: white;
+}
+
+.selected-items-container {
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 0 0 10px 10px;
+    width: 100%;
+}
+
+.selected-items-label {
+    font-weight: 600;
+    color: #0F3557;
+    margin-bottom: 0.75rem;
+    font-size: 0.95rem;
+}
+
+.selected-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    min-height: 2.5rem;
+    width: 100%;
+}
+
+.selected-item {
+    background: linear-gradient(135deg, #2F6DA3, #0F3557);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.remove-item {
+    cursor: pointer;
+    font-size: 1.2rem;
+    line-height: 1;
+    padding-left: 0.5rem;
+}
+
+.remove-item:hover {
+    color: #ff6b6b;
+}
+
+.no-selection, .no-results {
+    color: #6c757d;
+    font-style: italic;
+    font-size: 0.9rem;
+}
+
+/* ===== BOUTONS ===== */
+.btn-primary {
+    background: linear-gradient(135deg, #2F6DA3, #0F3557);
+    border: none;
+    border-radius: 8px;
+    padding: 0.875rem 2.5rem;
+    font-weight: 600;
+    color: white;
+    font-size: 1rem;
+    transition: all 0.3s;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(47, 109, 163, 0.3);
+}
+
+.btn-outline-secondary {
+    padding: 0.875rem 2rem;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 1rem;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .container-fluid {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+    
+    .content-section-full {
+        padding: 1.5rem;
+    }
+    
+    .cke_contents {
+        min-height: 200px !important;
+    }
+    
+    legend {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .content-section-full {
+        padding: 1rem;
+        border-radius: 8px;
+    }
+    
+    .form-group-full {
+        margin-bottom: 1.5rem;
+    }
+    
+    .btn-primary, .btn-outline-secondary {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.9rem;
+    }
+}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('=== INITIALIZING COMBOBOXES ===');
+    
+    // Initialize comboboxes
+    initializeCombobox('category', 'categories');  // Singular, Plural
+    initializeCombobox('component', 'components'); // Singular, Plural
+
+    function initializeCombobox(singularType, pluralType) {
+        console.log(`Initializing ${singularType} combobox (plural: ${pluralType})...`);
+        
+        // Get elements with correct plural form
+        const combobox = document.getElementById(`${singularType}-combobox`);
+        const search = document.getElementById(`${singularType}-search`);
+        const options = document.getElementById(`${singularType}-options`);
+        const selectedContainer = document.getElementById(`selected-${pluralType}`);
+        const hiddenInput = document.getElementById(`${pluralType}-input`);
+
+        // Check if all elements exist
+        if (!combobox || !search || !options || !selectedContainer || !hiddenInput) {
+            console.error(`❌ Missing elements for ${singularType} combobox`);
+            console.log('Available elements:');
+            console.log(`${singularType}-combobox:`, combobox);
+            console.log(`${singularType}-search:`, search);
+            console.log(`${singularType}-options:`, options);
+            console.log(`selected-${pluralType}:`, selectedContainer);
+            console.log(`${pluralType}-input:`, hiddenInput);
+            return;
+        }
+
+        console.log(`✅ All elements found for ${singularType} combobox`);
+
+        // Ensure options are hidden initially
+        options.style.display = 'none';
+
+        // Header click - toggle dropdown
+        const header = combobox.querySelector('.combobox-header');
+        header.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleDropdown(options, search);
+        });
+
+        // Search functionality
+        search.addEventListener('input', function(e) {
+            const searchTerm = this.value.toLowerCase();
+            filterOptions(searchTerm, options);
+        });
+
+        // Option selection
+        options.addEventListener('click', function(e) {
+            const option = e.target.closest('.combobox-option');
+            if (option && !option.classList.contains('no-results')) {
+                const value = option.getAttribute('data-value');
+                const text = option.textContent.trim();
+                
+                selectItem(singularType, pluralType, value, text, selectedContainer, hiddenInput);
+                toggleDropdown(options, search);
+                search.value = '';
+            }
+        });
+
+        // Remove selected items
+        selectedContainer.addEventListener('click', function(e) {
+            if (e.target.classList.contains('remove-item')) {
+                const item = e.target.closest('.selected-item');
+                if (item) {
+                    const value = item.getAttribute('data-value');
+                    removeSelectedItem(singularType, pluralType, value, selectedContainer, hiddenInput);
+                }
+            }
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function() {
+            options.style.display = 'none';
+        });
+
+        // Initialize any pre-selected items
+        initializeSelectedItems(pluralType, selectedContainer, hiddenInput);
+
+        console.log(`✅ ${singularType} combobox initialized successfully`);
+    }
+
+    function toggleDropdown(options, search) {
+        if (options.style.display === 'none') {
+            options.style.display = 'block';
+            search.focus();
+            filterOptions('', options);
+        } else {
+            options.style.display = 'none';
+        }
+    }
+
+    function filterOptions(searchTerm, optionsContainer) {
+        const options = optionsContainer.querySelectorAll('.combobox-option');
+        let hasVisibleOptions = false;
+        
+        options.forEach(option => {
+            if (option.classList.contains('no-results')) return;
+            
+            const text = option.textContent.toLowerCase();
+            const isVisible = text.includes(searchTerm.toLowerCase());
+            option.style.display = isVisible ? 'block' : 'none';
+            if (isVisible) hasVisibleOptions = true;
+        });
+
+        // Show/hide no results message
+        let noResults = optionsContainer.querySelector('.no-results');
+        if (!hasVisibleOptions && searchTerm && !noResults) {
+            noResults = document.createElement('div');
+            noResults.className = 'no-results';
+            noResults.textContent = 'No results found';
+            optionsContainer.appendChild(noResults);
+        } else if (hasVisibleOptions && noResults) {
+            noResults.remove();
+        }
+    }
+
+    function selectItem(singularType, pluralType, value, text, selectedContainer, hiddenInput) {
+        // Check if already selected
+        if (selectedContainer.querySelector(`[data-value="${value}"]`)) {
+            return;
+        }
+
+        // Remove no selection message
+        const noSelection = selectedContainer.querySelector('.no-selection');
+        if (noSelection) noSelection.remove();
+
+        // Create selected item
+        const item = document.createElement('span');
+        item.className = 'selected-item';
+        item.setAttribute('data-value', value);
+        item.innerHTML = `${text} <span class="remove-item">&times;</span>`;
+        selectedContainer.appendChild(item);
+
+        // Add to hidden input
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = text;
+        option.selected = true;
+        hiddenInput.appendChild(option);
+
+        console.log(`✅ Selected ${singularType}: ${text}`);
+    }
+
+    function removeSelectedItem(singularType, pluralType, value, selectedContainer, hiddenInput) {
+        // Remove from visible selection
+        const item = selectedContainer.querySelector(`[data-value="${value}"]`);
+        if (item) item.remove();
+
+        // Remove from hidden input
+        const option = hiddenInput.querySelector(`option[value="${value}"]`);
+        if (option) option.remove();
+
+        // Show no selection message if empty
+        if (!selectedContainer.querySelector('.selected-item')) {
+            const noSelection = document.createElement('div');
+            noSelection.className = 'no-selection';
+            noSelection.textContent = `No ${pluralType} selected`;
+            selectedContainer.appendChild(noSelection);
+        }
+    }
+
+    function initializeSelectedItems(pluralType, selectedContainer, hiddenInput) {
+        // If there are already selected items in the hidden input, create their visual representation
+        const options = hiddenInput.querySelectorAll('option[selected]');
+        if (options.length > 0) {
+            const noSelection = selectedContainer.querySelector('.no-selection');
+            if (noSelection) noSelection.remove();
+            
+            options.forEach(option => {
+                const value = option.value;
+                const text = option.textContent;
+                
+                const item = document.createElement('span');
+                item.className = 'selected-item';
+                item.setAttribute('data-value', value);
+                item.innerHTML = `${text} <span class="remove-item">&times;</span>`;
+                selectedContainer.appendChild(item);
+            });
+        }
+    }
+
+    console.log('=== COMBOBOX INITIALIZATION COMPLETE ===');
+});
+</script>
+{% endblock content %}

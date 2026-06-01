@@ -1,0 +1,23 @@
+#to have a token
+
+POST /api/token/
+{
+    "username": "user",
+    "password": "pass"
+}
+
+#to use token
+GET /api/export/posts/
+Authorization: Bearer <your_token_jwt>
+
+#create api key
+# Lister mes clés API
+GET /api/keys/
+Authorization: Bearer <token>
+
+# Créer une nouvelle clé API
+POST /api/keys/
+{
+    "name": "My Export Key",
+    "expires_at": "2024-12-31T23:59:59Z"
+}

@@ -1,0 +1,134 @@
+{% extends "blog/base.html" %}
+{% block content %}
+<article class="content-section">
+
+  <!-- Button to return to the recent version -->
+  <div class="mb-3">
+    <a href="{% url 'post-detail' history.post.id %}" class="btn btn-primary btn-sm">
+      <i class="bi bi-arrow-left"></i> Back to Current Version
+    </a>
+  </div>
+
+  <h2 class="article-title mb-4"><i class="bi bi-file-earmark-text"></i> {{ history.title }}</h2>
+
+  <!-- Article Cards -->
+  <div class="card mb-3">
+    <div class="card-header bg-light">
+      <h5 class="mb-0"><i class="bi bi-lightbulb"></i> Article</h5>
+    </div>
+    <div class="card-body">
+      <p class="card-text">{{ history.summary|safe }}</p>
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-header bg-light">
+      <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Detailed Problem Description</h5>
+    </div>
+    <div class="card-body">
+      <p class="card-text">{{ history.problem_description|safe }}</p>
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-header bg-light">
+      <h5 class="mb-0"><i class="bi bi-check-circle"></i> Solution and Resolution</h5>
+    </div>
+    <div class="card-body">
+      <p class="card-text">{{ history.content|safe }}</p>
+    </div>
+  </div>
+
+  <!-- Metadata & Technical Info -->
+  <div class="row mt-4">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-body">
+          <h6 class="card-title"><i class="bi bi-info-circle"></i> Article Information</h6>
+          <p class="mb-2"><strong><i class="bi bi-flag"></i> Status:</strong> 
+            <span class="badge badge-{% if history.status == 'published' %}success{% elif history.status == 'draft' %}secondary{% elif history.status == 'archived' %}warning{% else %}info{% endif %}">
+              {{ history.status }}
+            </span>
+          </p>
+          <p class="mb-2"><strong><i class="bi bi-person"></i> Author:</strong> {{ history.modified_by }}</p>
+          <p class="mb-2"><strong><i class="bi bi-calendar-event"></i> Date:</strong> {{ history.modified_date|date:"F d, Y H:i" }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-body">
+          <h6 class="card-title"><i class="bi bi-gear"></i> Technical Information</h6>
+          <p class="mb-2"><strong><i class="bi bi-tags"></i> Technical Categories:</strong></p>
+          {% if history.post.categories.all %}
+            {% for category in history.post.categories.all %}
+              <span class="badge badge-primary mr-1 mb-1"><i class="bi bi-check-circle-fill"></i> {{ category.name }}</span>
+            {% endfor %}
+          {% else %}
+            <span class="text-muted">None selected</span>
+          {% endif %}
+
+          <p class="mb-2 mt-3"><strong><i class="bi bi-hdd-network"></i> ICT Components:</strong></p>
+          {% if history.post.components.all %}
+            {% for component in history.post.components.all %}
+              <span class="badge badge-info mr-1 mb-1"><i class="bi bi-check-circle-fill"></i> {{ component.name }}</span>
+            {% endfor %}
+          {% else %}
+            <span class="text-muted">None selected</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- History Navigation -->
+  <h4 class="mt-4"><i class="bi bi-clock-history"></i> History</h4>
+  <ul>
+    <!-- Version actuelle du post -->
+    <li>
+      <a href="{% url 'post-detail' history.post.id %}">
+        {{ history.post.date_posted|date:"F d, Y H:i" }} (recent)
+      </a>
+    </li>
+    <!-- Anciennes versions -->
+    {% for h in history.post.history.all|dictsortreversed:"modified_date" %}
+      <li>
+        {% if h.id == history.id %}
+          <strong style="color:red;">{{ h.modified_date|date:"F d, Y H:i" }}</strong>
+        {% else %}
+          <a href="{% url 'post-history-view' h.id %}">{{ h.modified_date|date:"F d, Y H:i" }}</a>
+        {% endif %}
+      </li>
+    {% empty %}
+      <p class="text-muted">No previous versions available.</p>
+    {% endfor %}
+  </ul>
+
+  <!-- Export PDF Button
+  <div class="floating-export-single" style="position: fixed; bottom:120px; right:40px; z-index:1000;">
+    <button type="button" class="btn btn-primary btn-sm" onclick="exportSinglePdf()" style="border-radius:50px; padding:8px 16px;">
+      <i class="bi bi-file-earmark-pdf"></i> Export PDF
+    </button>
+  </div>
+-->
+</article>
+<!--
+<script>
+function exportSinglePdf(){
+  const form = document.createElement('form'); 
+  form.method='POST'; 
+  form.action="{% url 'export-posts-pdf' %}";
+  form.innerHTML=`<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                  <input type="hidden" name="selected_posts" value="{{ history.id }}">`;
+  document.body.appendChild(form); 
+  form.submit(); 
+  form.remove();
+}
+</script>
+<style>
+.floating-export-single .btn{box-shadow:0 4px 8px rgba(0,0,0,0.2);transition:all 0.3s;}
+.floating-export-single .btn:hover{transform:translateY(-2px);box-shadow:0 6px 12px rgba(0,0,0,0.3);}
+</style>
+-->
+
+{% endblock content %}

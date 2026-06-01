@@ -1,0 +1,779 @@
+/* ============================================
+   CLEAN BLUE DJANGO ADMIN THEME
+   Professional & Consistent Blue Color Scheme
+============================================= */
+
+/* ===== CSS VARIABLES ===== */
+:root {
+    /* Blue Color Scale - Consistent & Professional */
+    --primary: #0F3557 !important;        /* Dark blue - main brand color */
+    --primary-light: #1D4B7A !important;  /* Medium dark blue */
+    --accent: #2F6DA3 !important;         /* Medium blue - accents/buttons */
+    --accent-light: #4A8AC7 !important;   /* Light blue - hover states */
+    --accent-lighter: #E8F0FE !important; /* Very light blue - backgrounds */
+    
+    /* Neutral Colors */
+    --white: #FFFFFF !important;
+    --gray-50: #F9FAFB !important;
+    --gray-100: #F3F4F6 !important;
+    --gray-200: #E5E7EB !important;
+    --gray-300: #D1D5DB !important;
+    --gray-400: #9CA3AF !important;
+    --gray-500: #6B7280 !important;
+    --gray-600: #4B5563 !important;
+    --gray-700: #374151 !important;
+    --gray-800: #1F2937 !important;
+    --gray-900: #111827 !important;
+    
+    /* Functional Colors */
+    --success: #10B981 !important;      /* Green - kept for success states */
+    --warning: #F59E0B !important;      /* Amber - for warnings */
+    --danger: #EF4444 !important;       /* Red - for errors/danger */
+    --info: #3B82F6 !important;         /* Blue - for info messages */
+    
+    /* Text Colors */
+    --text-primary: var(--gray-900) !important;
+    --text-secondary: var(--gray-600) !important;
+    --text-tertiary: var(--gray-400) !important;
+    --text-on-primary: var(--white) !important;
+    
+    /* Background Colors */
+    --bg-primary: var(--white) !important;
+    --bg-secondary: var(--gray-50) !important;
+    --bg-tertiary: var(--gray-100) !important;
+    
+    /* Border Colors */
+    --border-light: var(--gray-200) !important;
+    --border-medium: var(--gray-300) !important;
+    --border-dark: var(--gray-400) !important;
+    
+    /* Admin Specific Variables */
+    --header-bg: var(--primary) !important;
+    --breadcrumbs-bg: var(--primary-light) !important;
+    --button-bg: var(--accent) !important;
+    --button-hover-bg: var(--primary) !important;
+    --module-header-bg: var(--primary) !important;
+    --table-header-bg: var(--primary) !important;
+}
+
+/* ===== BASE RESET ===== */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+#container {
+    min-height: 100vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* ===== HEADER ===== */
+#header {
+    background: var(--header-bg) !important;
+    color: var(--text-on-primary) !important;
+    padding: 0 24px !important;
+    height: 64px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 1000 !important;
+    box-shadow: 0 2px 8px rgba(15, 53, 87, 0.1) !important;
+    border-bottom: none !important;
+}
+
+#branding h1 {
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 1.25rem !important;
+    font-weight: 600 !important;
+}
+
+#branding h1 a:link,
+#branding h1 a:visited {
+    color: var(--text-on-primary) !important;
+    text-decoration: none !important;
+    opacity: 0.95 !important;
+}
+
+#branding h1 a:hover {
+    opacity: 1 !important;
+}
+
+#user-tools {
+    font-size: 0.875rem !important;
+    margin: 0 !important;
+}
+
+#user-tools,
+#user-tools a {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+#user-tools a:hover {
+    color: var(--white) !important;
+    text-decoration: underline !important;
+}
+
+/* ===== BREADCRUMBS ===== */
+.breadcrumbs {
+    background: var(--breadcrumbs-bg) !important;
+    padding: 16px 32px !important;
+    margin: 64px 0 0 0 !important;
+    border: none !important;
+    color: rgba(255, 255, 255, 0.85) !important;
+    font-size: 0.875rem !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+.breadcrumbs a {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.breadcrumbs a:hover {
+    color: var(--white) !important;
+    text-decoration: underline !important;
+}
+
+/* ===== CONTENT AREA ===== */
+#content {
+    padding: 24px 32px !important;
+    flex: 1 !important;
+}
+
+/* ===== MODULES ===== */
+.module {
+    background: var(--bg-primary) !important;
+    border: 1px solid var(--border-light) !important;
+    border-radius: 8px !important;
+    margin-bottom: 20px !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+    overflow: hidden !important;
+    transition: box-shadow 0.2s ease !important;
+}
+
+.module:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+}
+
+.module h2,
+.module caption,
+.inline-group h2 {
+    background: var(--module-header-bg) !important;
+    color: var(--text-on-primary) !important;
+    padding: 14px 20px !important;
+    margin: 0 !important;
+    font-size: 0.875rem !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    border: none !important;
+    border-radius: 8px 8px 0 0 !important;
+}
+
+/* ===== TABLES ===== */
+thead th {
+    background: var(--table-header-bg) !important;
+    color: var(--text-on-primary) !important;
+    font-weight: 600 !important;
+    font-size: 0.8125rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    border: none !important;
+    padding: 14px 16px !important;
+}
+
+thead th.sorted {
+    background: var(--primary-light) !important;
+}
+
+thead th a:link,
+thead th a:visited {
+    color: var(--text-on-primary) !important;
+}
+
+thead th a:hover {
+    text-decoration: underline !important;
+}
+
+tbody td,
+tbody th {
+    padding: 14px 16px !important;
+    border-bottom: 1px solid var(--border-light) !important;
+    vertical-align: middle !important;
+    color: var(--text-secondary) !important;
+}
+
+tbody tr:hover {
+    background-color: var(--accent-lighter) !important;
+}
+
+/* ===== FORMS ===== */
+.form-row {
+    border-bottom: 1px solid var(--border-light) !important;
+    padding: 20px 0 !important;
+    margin: 0 !important;
+}
+
+.form-row:last-child {
+    border-bottom: none !important;
+}
+
+label {
+    color: var(--text-primary) !important;
+    font-weight: 600 !important;
+    font-size: 0.875rem !important;
+    margin-bottom: 8px !important;
+    display: block !important;
+}
+
+.help {
+    color: var(--text-tertiary) !important;
+    font-size: 0.8125rem !important;
+    margin-top: 6px !important;
+    line-height: 1.4 !important;
+}
+
+/* Form Inputs */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="url"],
+input[type="number"],
+input[type="date"],
+textarea,
+select,
+.vTextField {
+    border: 1px solid var(--border-medium) !important;
+    border-radius: 6px !important;
+    padding: 10px 14px !important;
+    font-size: 0.875rem !important;
+    line-height: 1.5 !important;
+    background: var(--bg-primary) !important;
+    color: var(--text-primary) !important;
+    transition: all 0.15s ease !important;
+    width: 100% !important;
+    max-width: 400px !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 3px rgba(47, 109, 163, 0.1) !important;
+    outline: none !important;
+}
+
+/* ===== BUTTONS ===== */
+.button,
+input[type="submit"],
+input[type="button"],
+.submit-row input,
+a.button {
+    background: var(--button-bg) !important;
+    border: none !important;
+    border-radius: 6px !important;
+    color: var(--text-on-primary) !important;
+    padding: 10px 20px !important;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    line-height: 1.5 !important;
+    text-decoration: none !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.15s ease !important;
+    height: 40px !important;
+    min-width: 80px !important;
+}
+
+.button:hover,
+input[type="submit"]:hover,
+input[type="button"]:hover,
+a.button:hover {
+    background: var(--button-hover-bg) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(15, 53, 87, 0.15) !important;
+}
+
+.button:active,
+input[type="submit"]:active,
+input[type="button"]:active {
+    transform: translateY(0) !important;
+}
+
+/* Default Button */
+.button.default,
+input[type="submit"].default {
+    background: var(--primary) !important;
+    font-weight: 600 !important;
+}
+
+.button.default:hover,
+input[type="submit"].default:hover {
+    background: var(--primary-light) !important;
+}
+
+/* Delete Button */
+.delete-button,
+input[type="submit"][name="_delete"] {
+    background: var(--danger) !important;
+}
+
+.delete-button:hover,
+input[type="submit"][name="_delete"]:hover {
+    background: #DC2626 !important;
+}
+
+/* Submit Row */
+.submit-row {
+    background: var(--bg-secondary) !important;
+    border: 1px solid var(--border-light) !important;
+    border-radius: 8px !important;
+    padding: 20px !important;
+    margin: 24px 0 !important;
+    display: flex !important;
+    justify-content: flex-end !important;
+    gap: 12px !important;
+    flex-wrap: wrap !important;
+}
+
+/* ===== OBJECT TOOLS ===== */
+.object-tools {
+    margin: 0 0 16px 0 !important;
+    padding: 0 !important;
+}
+
+.object-tools li {
+    display: inline-block !important;
+    margin-left: 8px !important;
+}
+
+.object-tools a:link,
+.object-tools a:visited {
+    background: var(--accent) !important;
+    color: var(--text-on-primary) !important;
+    border-radius: 6px !important;
+    padding: 8px 16px !important;
+    font-size: 0.8125rem !important;
+    font-weight: 500 !important;
+    text-decoration: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    transition: all 0.15s ease !important;
+}
+
+.object-tools a:hover {
+    background: var(--primary) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 2px 8px rgba(15, 53, 87, 0.15) !important;
+}
+
+.object-tools a.addlink {
+    background: var(--accent) !important;
+}
+
+.object-tools a.addlink:hover {
+    background: var(--primary) !important;
+}
+
+/* ===== LINKS ===== */
+a:link,
+a:visited {
+    color: var(--accent) !important;
+    text-decoration: none !important;
+    transition: color 0.15s ease !important;
+}
+
+a:hover {
+    color: var(--primary) !important;
+    text-decoration: underline !important;
+}
+
+/* ===== MESSAGES ===== */
+ul.messagelist {
+    margin: 20px 32px 0 32px !important;
+    padding: 0 !important;
+}
+
+ul.messagelist li {
+    padding: 14px 20px !important;
+    margin-bottom: 12px !important;
+    border-radius: 8px !important;
+    font-weight: 500 !important;
+    border: 1px solid transparent !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+}
+
+ul.messagelist li.success {
+    background: var(--success) !important;
+    color: white !important;
+    border-color: rgba(16, 185, 129, 0.2) !important;
+}
+
+ul.messagelist li.warning {
+    background: var(--warning) !important;
+    color: var(--gray-900) !important;
+    border-color: rgba(245, 158, 11, 0.2) !important;
+}
+
+ul.messagelist li.error {
+    background: var(--danger) !important;
+    color: white !important;
+    border-color: rgba(239, 68, 68, 0.2) !important;
+}
+
+ul.messagelist li.info {
+    background: var(--info) !important;
+    color: white !important;
+    border-color: rgba(59, 130, 246, 0.2) !important;
+}
+
+/* ===== FILTER SIDEBAR ===== */
+#changelist-filter {
+    background: var(--bg-primary) !important;
+    border: 1px solid var(--border-light) !important;
+    border-radius: 8px !important;
+    padding: 0 !important;
+    margin: 0 0 20px 0 !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+#changelist-filter h2 {
+    background: var(--primary) !important;
+    color: var(--text-on-primary) !important;
+    margin: 0 !important;
+    padding: 14px 20px !important;
+    font-size: 0.875rem !important;
+    font-weight: 600 !important;
+    border-radius: 8px 8px 0 0 !important;
+}
+
+#changelist-filter h3 {
+    color: var(--text-primary) !important;
+    font-size: 0.8125rem !important;
+    font-weight: 600 !important;
+    margin: 20px 20px 8px 20px !important;
+    padding: 0 !important;
+}
+
+#changelist-filter ul {
+    margin: 0 20px 20px 20px !important;
+    padding: 0 !important;
+}
+
+#changelist-filter a {
+    color: var(--text-secondary) !important;
+    padding: 6px 0 !important;
+    display: block !important;
+    font-size: 0.875rem !important;
+    transition: color 0.15s ease !important;
+}
+
+#changelist-filter a:hover {
+    color: var(--accent) !important;
+}
+
+#changelist-filter li.selected a {
+    color: var(--accent) !important;
+    font-weight: 600 !important;
+}
+
+/* ===== PAGINATION ===== */
+.pagination {
+    margin: 24px 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    justify-content: center !important;
+    gap: 4px !important;
+}
+
+.pagination span,
+.pagination a {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 8px 14px !important;
+    border: 1px solid var(--border-light) !important;
+    border-radius: 6px !important;
+    text-decoration: none !important;
+    color: var(--text-secondary) !important;
+    background: var(--bg-primary) !important;
+    font-size: 0.875rem !important;
+    min-width: 40px !important;
+    height: 40px !important;
+    transition: all 0.15s ease !important;
+}
+
+.pagination a:hover {
+    background: var(--accent-lighter) !important;
+    border-color: var(--accent) !important;
+    color: var(--accent) !important;
+}
+
+.pagination span.this-page {
+    background: var(--accent) !important;
+    color: var(--text-on-primary) !important;
+    border-color: var(--accent) !important;
+    font-weight: 600 !important;
+}
+
+/* ===== SELECTOR BOXES ===== */
+.selector-available h2,
+.selector-chosen h2 {
+    background: var(--primary) !important;
+    color: var(--text-on-primary) !important;
+    padding: 12px 16px !important;
+    margin: 0 !important;
+    font-size: 0.875rem !important;
+    font-weight: 600 !important;
+    border-radius: 6px 6px 0 0 !important;
+}
+
+.selector .selector-chooser a {
+    background: var(--accent) !important;
+    color: var(--text-on-primary) !important;
+    border-radius: 6px !important;
+    padding: 8px 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-decoration: none !important;
+    transition: all 0.15s ease !important;
+}
+
+.selector .selector-chooser a:hover {
+    background: var(--primary) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* ===== CALENDARS & TIME PICKERS ===== */
+.calendar caption {
+    background: var(--primary) !important;
+    color: var(--text-on-primary) !important;
+}
+
+.calendar td a {
+    background: var(--accent) !important;
+    color: var(--text-on-primary) !important;
+    border-radius: 4px !important;
+}
+
+.calendar td a:hover,
+.calendar td.selected a {
+    background: var(--primary) !important;
+}
+
+.timelist a {
+    background: var(--accent) !important;
+    color: var(--text-on-primary) !important;
+    border-radius: 4px !important;
+}
+
+.timelist a:hover {
+    background: var(--primary) !important;
+}
+
+/* ===== RELATED WIDGETS ===== */
+.related-widget-wrapper-link {
+    background: var(--accent) !important;
+    color: var(--text-on-primary) !important;
+    border-radius: 6px !important;
+    padding: 8px 14px !important;
+    font-size: 0.8125rem !important;
+    text-decoration: none !important;
+    transition: all 0.15s ease !important;
+}
+
+.related-widget-wrapper-link:hover {
+    background: var(--primary) !important;
+}
+
+/* ===== INLINE GROUPS ===== */
+.inline-group {
+    border: 1px solid var(--border-light) !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+}
+
+.inline-group h2 {
+    margin: 0 !important;
+}
+
+.inline-related {
+    border-bottom: 1px solid var(--border-light) !important;
+    padding: 20px !important;
+}
+
+.inline-related:last-child {
+    border-bottom: none !important;
+}
+
+.inline-related h3 {
+    color: var(--text-primary) !important;
+    margin: 0 0 16px 0 !important;
+    font-size: 0.875rem !important;
+    font-weight: 600 !important;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+    #header {
+        padding: 0 16px !important;
+        height: 56px !important;
+        flex-wrap: wrap !important;
+    }
+    
+    #content {
+        padding: 16px !important;
+    }
+    
+    .breadcrumbs {
+        padding: 12px 16px !important;
+        margin-top: 56px !important;
+    }
+    
+    .submit-row {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+    
+    .submit-row input {
+        width: 100% !important;
+        margin-bottom: 8px !important;
+    }
+    
+    .object-tools {
+        text-align: left !important;
+        margin-bottom: 12px !important;
+    }
+    
+    .object-tools li {
+        display: block !important;
+        margin: 0 0 8px 0 !important;
+    }
+    
+    .object-tools a {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+    #header,
+    #user-tools,
+    .breadcrumbs,
+    .submit-row,
+    .object-tools,
+    #changelist-filter {
+        display: none !important;
+    }
+    
+    #content {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    .module {
+        border: none !important;
+        box-shadow: none !important;
+        break-inside: avoid !important;
+    }
+}
+
+/* ===== UTILITIES ===== */
+.text-center {
+    text-align: center !important;
+}
+
+.text-right {
+    text-align: right !important;
+}
+
+.text-muted {
+    color: var(--text-tertiary) !important;
+}
+
+.mb-0 {
+    margin-bottom: 0 !important;
+}
+
+.mt-0 {
+    margin-top: 0 !important;
+}
+
+/* ===== SPECIFIC FIXES ===== */
+/* Fix for Django 4+ compatibility */
+.form-row .aligned .vTextField {
+    max-width: 400px !important;
+}
+
+.related-widget-wrapper select {
+    max-width: 400px !important;
+}
+
+/* Ensure text visibility */
+input,
+textarea,
+select {
+    color: var(--text-primary) !important;
+}
+
+/* Fix focus states */
+button:focus,
+input:focus,
+select:focus,
+textarea:focus,
+a:focus {
+    outline: 2px solid var(--accent) !important;
+    outline-offset: 2px !important;
+}
+
+/* ===== SMOOTH TRANSITIONS ===== */
+#header,
+.module,
+.button,
+input[type="submit"],
+input[type="button"],
+.object-tools a,
+.pagination a,
+#changelist-filter a {
+    transition: all 0.15s ease !important;
+}
+
+/* ===== CUSTOM SCROLLBAR ===== */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--gray-300);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--gray-400);
+}
+
+/* ===== END OF THEME ===== */

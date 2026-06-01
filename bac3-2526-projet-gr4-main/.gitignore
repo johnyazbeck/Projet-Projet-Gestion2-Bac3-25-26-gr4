@@ -1,0 +1,122 @@
+# ================================
+# Django
+# ================================
+
+# Database
+*.sqlite3
+*.db
+db.sqlite3
+
+# Media and static files
+/media/
+/staticfiles/
+/static/
+
+# Django cache and logs
+*.log
+*.pot
+*.mo
+
+# Local settings and environment variables
+local_settings.py
+settings_local.py
+.env
+.env.*
+.env.local
+
+# ================================
+# Python
+# ================================
+
+# Bytecode and compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# Package and distribution files
+build/
+dist/
+*.egg-info/
+
+# Testing and coverage
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+.pytest_cache/
+
+# ================================
+# IDE and Editors
+# ================================
+
+# VS Code
+.vscode/
+
+# PyCharm
+.idea/
+
+# Sublime Text
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+
+# ================================
+# System Files
+# ================================
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# ================================
+# Binary and Executable Files
+# ================================
+
+# Compiled libraries
+*.so
+*.dll
+*.dylib
+
+# Executables
+*.exe
+*.out
+
+# Object files
+*.o
+*.obj
+*.bin
+
+# ================================
+# Temporary and Backup Files
+# ================================
+
+# Temporary files
+*.tmp
+*.temp
+
+# Backup files
+*.bak
+*.backup
+*.orig
+#__pycache folders__
+/django_project/blog/__pycache__
+/django_project/django_project/__pycache__
+/django_project/users/__pycache__
+
+#data files
+data.json

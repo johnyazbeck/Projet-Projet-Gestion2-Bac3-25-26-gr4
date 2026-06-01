@@ -1,0 +1,31 @@
+[
+  {
+    "id": 1,
+    "title": "test history 4",
+    "summary": "<p>jai cree cette article pour tester le history 4</p>",
+    "problem_description": "<p>cest un test pour la partie&nbsp;Detailed Problem Description 4</p>",
+    "content": "<p>il a pas de solution pour la partie&nbsp;Solution and Resolution 4</p>",
+    "author_name": "admin",
+    "date_posted": "2025-12-14T22:36:47.918323Z",
+    "last_modified": "2025-12-15T20:09:55.451596Z",
+    "status": "archived",
+    "view_count": 13,
+    "rating": 0.0,
+    "useful_count": 0,
+    "categories": [
+      {
+        "id": 8,
+        "name": "Development",
+        "description": "Development, APIs, integration"
+      }
+    ],
+    "components": [
+      {
+        "id": 14,
+        "name": "Azure VM",
+        "component_type": "cloud",
+        "description": "Azure virtual machines"
+      }
+    ]
+  }
+]

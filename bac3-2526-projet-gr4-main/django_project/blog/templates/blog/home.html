@@ -1,0 +1,859 @@
+{% extends "blog/base.html" %}
+{% block content %}
+
+<!-- Barre de recherche avec coins arrondis -->
+<div class="row mb-4">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-body">
+        <form method="GET" action="{% url 'blog-home' %}">
+          <div class="input-group">
+            <input class="form-control form-control-lg rounded-pill mr-2" 
+                   type="search" 
+                   placeholder="Search by keywords, title, content, categories, author..." 
+                   name="q" 
+                   value="{{ search_query }}"
+                   aria-label="Search articles">
+            <div class="input-group-append">
+              <button class="btn btn-primary btn-lg rounded-pill px-4" type="submit">
+                <i class="bi bi-search"></i> Search
+              </button>
+            </div>
+          </div>
+          
+          <!-- Advanced Search Filters avec recherche -->
+          <div class="row mt-3">
+            <div class="col-md-4">
+              <div class="searchable-select" id="category-select">
+                <div class="custom-select-wrapper">
+                  <div class="custom-select-display" id="category-display">
+                    <span id="category-selected-text">All Categories</span>
+                  </div>
+                  <div class="select-options" id="category-options">
+                    <input type="text" class="search-input" placeholder="Search categories..." id="category-search">
+                    <div class="option" data-value="">All Categories</div>
+                    {% for category in categories %}
+                    <div class="option" data-value="{{ category.id }}">{{ category.name }}</div>
+                    {% endfor %}
+                  </div>
+                </div>
+                <input type="hidden" name="category" id="category-input" value="{{ selected_category }}">
+              </div>
+            </div>
+            
+            <div class="col-md-4">
+              <div class="searchable-select" id="component-select">
+                <div class="custom-select-wrapper">
+                  <div class="custom-select-display" id="component-display">
+                    <span id="component-selected-text">All Components</span>
+                  </div>
+                  <div class="select-options" id="component-options">
+                    <input type="text" class="search-input" placeholder="Search components..." id="component-search">
+                    <div class="option" data-value="">All Components</div>
+                    {% for component in components %}
+                    <div class="option" data-value="{{ component.id }}">{{ component.name }}</div>
+                    {% endfor %}
+                  </div>
+                </div>
+                <input type="hidden" name="component" id="component-input" value="{{ selected_component }}">
+              </div>
+            </div>
+            
+            <div class="col-md-4">
+              <div class="sort-select" id="sort-select">
+                <div class="custom-select-wrapper">
+                  <div class="custom-select-display" id="sort-display">
+                    <span id="sort-selected-text">Sort by Date (Newest)</span>
+                  </div>
+                  <div class="select-options" id="sort-options">
+                    <div class="option" data-value="">Sort by Date (Newest)</div>
+                    <div class="option" data-value="oldest">Sort by Date (Oldest)</div>
+                    <div class="option" data-value="views">Most Viewed</div>
+                    <div class="option" data-value="rating">Highest Rated</div>
+                  </div>
+                </div>
+                <input type="hidden" name="sort" id="sort-input" value="{{ selected_sort }}">
+              </div>
+            </div>
+          </div>
+          
+          <!-- Search Tips -->
+          <div class="mt-2">
+            <small class="text-muted">
+              <i class="bi bi-info-circle"></i> 
+              Tip: Use multiple keywords like "network server error" for better results
+            </small>
+          </div>
+        </form>
+
+        <!-- Search Results Info -->
+        {% if search_query %}
+          <div class="mt-3">
+            <div class="alert alert-info rounded-pill">
+              <i class="bi bi-search"></i>
+              Showing results for: <strong>"{{ search_query }}"</strong>
+              {% if posts.paginator.count > 0 %}
+                - Found {{ posts.paginator.count }} article{{ posts.paginator.count|pluralize }}
+              {% endif %}
+              <a href="{% url 'blog-home' %}" class="float-right btn btn-sm btn-outline-info rounded-pill">
+                <i class="bi bi-x-circle"></i> Clear search
+              </a>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bouton flottant pour l'export -->
+<div class="floating-export-btn" id="floatingExportBtn">
+  <button class="btn btn-success btn-lg rounded-pill shadow-lg" onclick="toggleSelectionMode()">
+    <i class="bi bi-download"></i>
+    <span class="btn-text">Export</span>
+  </button>
+</div>
+
+<!-- Overlay de sélection -->
+<div class="selection-overlay" id="selectionOverlay">
+  <div class="selection-header">
+    <h5><i class="bi bi-check2-square"></i> Selection Mode</h5>
+    <p class="text-muted mb-0">Select posts to export</p>
+  </div>
+  
+  <div class="selection-controls">
+    <div class="selection-info">
+      <i class="bi bi-check-circle"></i>
+      <span id="selectedCount">0</span> posts selected
+    </div>
+    
+    <div class="selection-actions">
+      <button class="btn btn-outline-secondary btn-sm rounded-pill" onclick="selectAllPosts()">
+        <i class="bi bi-check-all"></i> Select All
+      </button>
+      <button class="btn btn-outline-secondary btn-sm rounded-pill" onclick="deselectAllPosts()">
+        <i class="bi bi-x-circle"></i> Clear All
+      </button>
+      <button class="btn btn-success btn-sm rounded-pill" id="exportCsvBtn" onclick="exportSelected('csv')" disabled>
+        <i class="bi bi-file-earmark-spreadsheet"></i> CSV
+      </button>
+      <button class="btn btn-warning btn-sm rounded-pill" id="exportJsonBtn" onclick="exportSelected('json')" disabled>
+        <i class="bi bi-file-earmark-code"></i> JSON
+      </button>
+      <button class="btn btn-outline-danger btn-sm rounded-pill" onclick="exitSelectionMode()">
+        <i class="bi bi-x"></i> Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Formulaires d'export (cachés) -->
+<form method="POST" action="{% url 'export-posts-csv' %}" id="exportCsvForm">
+  {% csrf_token %}
+  <input type="hidden" name="selected_posts" id="csvSelectedPosts">
+</form>
+
+<form method="POST" action="{% url 'export-posts-json' %}" id="exportJsonForm">
+  {% csrf_token %}
+  <input type="hidden" name="selected_posts" id="jsonSelectedPosts">
+</form>
+
+{% for post in posts %}
+    <article class="media content-section post-item" data-post-id="{{ post.id }}">
+        <!-- Checkbox de sélection (cachée par défaut) -->
+        <div class="selection-checkbox">
+          <div class="custom-checkbox">
+            <input type="checkbox" class="post-checkbox" id="post-{{ post.id }}" value="{{ post.id }}">
+            <label for="post-{{ post.id }}" class="check-label">
+              <i class="bi bi-check"></i>
+            </label>
+          </div>
+        </div>
+
+        <div class="media-body">
+            <h2><a class="article-title" href="{% url 'post-detail' post.id %}">{{ post.title }}</a></h2>
+            <p class="article-content">{{ post.summary|striptags|truncatechars:250 }}</p>
+
+            <!-- Categories and Components -->
+            {% if post.categories.all or post.components.all %}
+            <div class="mb-3">
+                {% for category in post.categories.all %}
+                    <span class="badge badge-primary mr-1 mb-1 rounded-pill"><i class="bi bi-tag"></i> {{ category.name }}</span>
+                {% endfor %}
+                {% for component in post.components.all %}
+                    <span class="badge badge-info mr-1 mb-1 rounded-pill"><i class="bi bi-hdd"></i> {{ component.name }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Article Stats -->
+            <div class="d-flex justify-content-between align-items-center mt-2 mb-3">
+                <div class="text-muted small">
+                    <i class="bi bi-eye"></i> {{ post.view_count }} views
+                    <i class="bi bi-star ml-2"></i> {{ post.rating|default:"0.0"|floatformat:1 }} rating
+                    <i class="bi bi-chat ml-2"></i> {{ post.comments.count }} comments
+                </div>
+            </div>
+
+            <div class="article-metadata mt-3 pt-3 border-top d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <img class="rounded-circle article-img mr-2" src="{{ post.author.profile.image.url }}">
+                    <div>
+                        <a class="mr-2" href="#"><i class="bi bi-person-circle"></i> {{ post.author }}</a><br>
+                        <small class="text-muted"><i class="bi bi-calendar-event"></i> {{ post.date_posted|date:"F d, Y" }}</small>
+                    </div>
+                </div>
+                <div>
+                    <span class="badge rounded-pill
+                      {% if post.status == 'published' %}badge-success
+                      {% elif post.status == 'draft' %}badge-secondary
+                      {% elif post.status == 'archived' %}badge-warning
+                      {% else %}badge-info{% endif %} mr-1">
+                      {{ post.get_status_display }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </article>
+{% empty %}
+    <div class="content-section text-center py-5 rounded">
+        <i class="bi bi-search display-1 text-muted"></i>
+        <h3 class="text-muted mt-3">No articles found</h3>
+        <p class="text-muted">
+            {% if search_query %}
+                No articles match your search criteria. Try different keywords or filters.
+            {% else %}
+                No articles available yet. 
+                {% if user.is_authenticated %}
+                    <a href="{% url 'post-create' %}">Create the first one!</a>
+                {% endif %}
+            {% endif %}
+        </p>
+        {% if search_query %}
+            <a href="{% url 'blog-home' %}" class="btn btn-primary mt-2 rounded-pill">
+                <i class="bi bi-house"></i> View All Articles
+            </a>
+        {% endif %}
+    </div>
+{% endfor %}
+
+
+{% if is_paginated %}
+  <div class="pagination justify-content-center mt-4">
+    {% if page_obj.has_previous %}
+      <a class="btn btn-outline-info mb-4 mr-1 rounded-pill" 
+         href="?page=1{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_component %}&component={{ selected_component }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}">First</a>
+      <a class="btn btn-outline-info mb-4 mr-1 rounded-pill" 
+         href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_component %}&component={{ selected_component }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}">Previous</a>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+      {% if page_obj.number == num %}
+        <a class="btn btn-info mb-4 mr-1 rounded-pill" 
+           href="?page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_component %}&component={{ selected_component }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}">{{ num }}</a>
+      {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+        <a class="btn btn-outline-info mb-4 mr-1 rounded-pill" 
+           href="?page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_component %}&component={{ selected_component }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}">{{ num }}</a>
+      {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+      <a class="btn btn-outline-info mb-4 mr-1 rounded-pill" 
+         href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_component %}&component={{ selected_component }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}">Next</a>
+      <a class="btn btn-outline-info mb-4 mr-1 rounded-pill" 
+         href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_component %}&component={{ selected_component }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}">Last</a>
+    {% endif %}
+  </div>
+{% endif %}
+
+<style>
+/* Variables CSS - RESPECT DE VOTRE CHARTE */
+:root { 
+  --primary: #0F3557;       /* Bleu foncé pour titres et éléments dominants */
+  --secondary: #02bcf0;     /* Bleu turquoise sous-titres et accents */
+  --accent: #2F6DA3;        /* Bleu moyen pour hover, boutons, liens */
+  --background: #f8f9fa;
+  --surface: #ffffff;
+  --text: #0F3557;          /* Texte principal en bleu foncé */
+  --text-light: #7f8c8d;
+  --border: #e1e8ed;
+  --danger: #e74c3c;
+  --warning: #f39c12;
+}
+
+/* BOUTON FLOTTANT - AVEC VOTRE CHARTE */
+.floating-export-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 9999;
+}
+
+.floating-export-btn .btn {
+  padding: 15px 25px;
+  font-weight: 600;
+  border: none;
+  background: linear-gradient(135deg, var(--secondary), #4CAF50);
+  color: white;
+  box-shadow: 0 5px 20px rgba(109, 190, 140, 0.4);
+  transition: all 0.3s ease;
+}
+
+.floating-export-btn .btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(109, 190, 140, 0.6);
+}
+
+/* Overlay de sélection - AVEC VOTRE CHARTE */
+.selection-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: white;
+  padding: 1rem 2rem;
+  z-index: 9998;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  transform: translateY(-100%);
+  transition: transform 0.3s ease;
+}
+
+.selection-overlay.active {
+  transform: translateY(0);
+}
+
+.selection-header h5 {
+  margin: 0;
+  font-weight: 600;
+}
+
+.selection-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.selection-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+}
+
+.selection-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* Checkbox personnalisée */
+.selection-checkbox {
+  position: absolute;
+  left: -3rem;
+  top: 1.5rem;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.post-item {
+  position: relative;
+  transition: all 0.3s ease;
+  margin-bottom: 1.5rem;
+}
+
+.selection-mode .post-item {
+  padding-left: 3rem;
+}
+
+.selection-mode .selection-checkbox {
+  opacity: 1;
+  left: 1rem;
+}
+
+.custom-checkbox {
+  position: relative;
+}
+
+.custom-checkbox input[type="checkbox"] {
+  display: none;
+}
+
+.check-label {
+  width: 2rem;
+  height: 2rem;
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.check-label:hover {
+  border-color: var(--secondary);
+  transform: scale(1.1);
+}
+
+.custom-checkbox input[type="checkbox"]:checked + .check-label {
+  background: var(--secondary);
+  border-color: var(--secondary);
+  color: white;
+}
+
+.custom-checkbox input[type="checkbox"]:checked + .check-label i {
+  opacity: 1;
+}
+
+.check-label i {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  font-size: 1rem;
+}
+
+/* Animation des articles en mode sélection */
+.selection-mode .post-item:hover {
+  transform: translateX(5px);
+  border-left: 4px solid var(--secondary);
+}
+
+/* Toast */
+.toast {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.toast-header {
+  border-bottom: none;
+  padding: 0.75rem 1rem;
+}
+
+/* Styles pour les combobox avec recherche */
+.searchable-select, .sort-select {
+  position: relative;
+}
+
+.searchable-select input.search-input {
+  width: calc(100% - 1rem);
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  margin: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.searchable-select .select-options, .sort-select .select-options {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: white;
+  display: none;
+  position: absolute;
+  width: 100%;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  top: 100%;
+  margin-top: 0.25rem;
+}
+
+.searchable-select .select-options.show, .sort-select .select-options.show {
+  display: block;
+}
+
+.searchable-select .option, .sort-select .option {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  transition: background-color 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.searchable-select .option:last-child, .sort-select .option:last-child {
+  border-bottom: none;
+}
+
+.searchable-select .option:hover, .sort-select .option:hover {
+  background-color: var(--background);
+}
+
+.searchable-select .option.selected, .sort-select .option.selected {
+  background-color: var(--accent);
+  color: white;
+}
+
+.searchable-select .no-results {
+  padding: 0.75rem 1rem;
+  color: var(--text-light);
+  font-style: italic;
+  text-align: center;
+}
+
+.custom-select-wrapper {
+  position: relative;
+}
+
+.custom-select-display {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: border-color 0.2s ease;
+  min-height: 50px;
+}
+
+.custom-select-display:hover {
+  border-color: var(--accent);
+}
+
+.custom-select-display:after {
+  content: '▼';
+  font-size: 0.8rem;
+  color: var(--text-light);
+  transition: transform 0.2s ease;
+}
+
+.custom-select-display.open:after {
+  transform: rotate(180deg);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .floating-export-btn {
+    bottom: 20px;
+    right: 20px;
+  }
+  
+  .floating-export-btn .btn {
+    padding: 12px 20px;
+    font-size: 0.9rem;
+  }
+  
+  .btn-text {
+    display: none;
+  }
+  
+  .selection-controls {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+  
+  .selection-actions {
+    width: 100%;
+    justify-content: space-between;
+    gap: 0.25rem;
+  }
+  
+  .selection-actions .btn {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.5rem;
+  }
+  
+  .selection-mode .post-item {
+    padding-left: 2.5rem;
+  }
+  
+  .selection-checkbox {
+    left: -2.5rem;
+  }
+  
+  .selection-mode .selection-checkbox {
+    left: 0.5rem;
+  }
+}
+
+/* Animation du bouton flottant */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.floating-export-btn .btn {
+  animation: pulse 2s infinite;
+}
+
+.floating-export-btn .btn:hover {
+  animation: none;
+}
+</style>
+
+<script>
+let selectionMode = false;
+
+function toggleSelectionMode() {
+  selectionMode = !selectionMode;
+  const body = document.body;
+  const overlay = document.getElementById('selectionOverlay');
+  
+  if (selectionMode) {
+    body.classList.add('selection-mode');
+    overlay.classList.add('active');
+    updateSelectedCount();
+  } else {
+    body.classList.remove('selection-mode');
+    overlay.classList.remove('active');
+    deselectAllPosts();
+  }
+}
+
+function exitSelectionMode() {
+  selectionMode = false;
+  document.body.classList.remove('selection-mode');
+  document.getElementById('selectionOverlay').classList.remove('active');
+  deselectAllPosts();
+}
+
+function selectAllPosts() {
+  const checkboxes = document.querySelectorAll('.post-checkbox');
+  checkboxes.forEach(checkbox => {
+    checkbox.checked = true;
+  });
+  updateSelectedCount();
+}
+
+function deselectAllPosts() {
+  const checkboxes = document.querySelectorAll('.post-checkbox');
+  checkboxes.forEach(checkbox => {
+    checkbox.checked = false;
+  });
+  updateSelectedCount();
+}
+
+function updateSelectedCount() {
+  const checkboxes = document.querySelectorAll('.post-checkbox');
+  const selectedCount = document.getElementById('selectedCount');
+  const exportCsvBtn = document.getElementById('exportCsvBtn');
+  const exportJsonBtn = document.getElementById('exportJsonBtn');
+  
+  let count = 0;
+  checkboxes.forEach(checkbox => {
+    if (checkbox.checked) count++;
+  });
+  
+  selectedCount.textContent = count;
+  exportCsvBtn.disabled = count === 0;
+  exportJsonBtn.disabled = count === 0;
+  
+  // Animation du compteur
+  if (count > 0) {
+    selectedCount.parentElement.style.color = '#6DBE8C';
+    selectedCount.style.fontWeight = 'bold';
+  } else {
+    selectedCount.parentElement.style.color = 'inherit';
+    selectedCount.style.fontWeight = 'normal';
+  }
+}
+
+function exportSelected(format) {
+  const checkboxes = document.querySelectorAll('.post-checkbox');
+  const selectedPosts = [];
+  
+  checkboxes.forEach(checkbox => {
+    if (checkbox.checked) {
+      selectedPosts.push(checkbox.value);
+    }
+  });
+  
+  if (selectedPosts.length === 0) {
+    alert('Please select at least one post to export.');
+    return;
+  }
+  
+  let formId, message;
+  if (format === 'csv') {
+    formId = 'exportCsvForm';
+    message = '✅ Your CSV export has started. The file will download shortly.';
+    document.getElementById('csvSelectedPosts').value = selectedPosts.join(',');
+    document.getElementById('exportCsvForm').submit();
+  } else if (format === 'json') {
+    formId = 'exportJsonForm';
+    message = '✅ Your JSON export has started. The file will download shortly.';
+    document.getElementById('jsonSelectedPosts').value = selectedPosts.join(',');
+    document.getElementById('exportJsonForm').submit();
+  }
+  
+  // Mettre à jour le message du toast
+  document.getElementById('toastMessage').textContent = message;
+  showExportToast();
+  exitSelectionMode();
+}
+
+function showExportToast() {
+  const toast = new bootstrap.Toast(document.getElementById('exportToast'));
+  toast.show();
+}
+
+// Fonctionnalité de recherche pour les combobox
+function initializeSearchableSelect(selectId, displayId, optionsId, searchId, inputId, selectedTextId) {
+  const select = document.getElementById(selectId);
+  const display = document.getElementById(displayId);
+  const options = document.getElementById(optionsId);
+  const search = document.getElementById(searchId);
+  const input = document.getElementById(inputId);
+  const selectedText = document.getElementById(selectedTextId);
+  
+  let isOpen = false;
+  
+  // Ouvrir/fermer le dropdown
+  display.addEventListener('click', function(e) {
+    e.stopPropagation();
+    isOpen = !isOpen;
+    options.classList.toggle('show', isOpen);
+    display.classList.toggle('open', isOpen);
+    
+    if (isOpen && search) {
+      search.focus();
+      filterOptions(search.value, options);
+    }
+  });
+  
+  // Recherche en temps réel (seulement pour les searchable-select)
+  if (search) {
+    search.addEventListener('input', function() {
+      filterOptions(this.value, options);
+    });
+  }
+  
+  // Sélectionner une option
+  options.addEventListener('click', function(e) {
+    if (e.target.classList.contains('option')) {
+      const value = e.target.getAttribute('data-value');
+      const text = e.target.textContent;
+      
+      input.value = value;
+      selectedText.textContent = text;
+      
+      // Mettre à jour la classe selected
+      options.querySelectorAll('.option').forEach(opt => {
+        opt.classList.remove('selected');
+      });
+      e.target.classList.add('selected');
+      
+      // Fermer le dropdown
+      isOpen = false;
+      options.classList.remove('show');
+      display.classList.remove('open');
+      
+      // Soumettre le formulaire automatiquement
+      select.closest('form').submit();
+    }
+  });
+  
+  // Fermer le dropdown en cliquant à l'extérieur
+  document.addEventListener('click', function() {
+    isOpen = false;
+    options.classList.remove('show');
+    display.classList.remove('open');
+  });
+  
+  // Empêcher la fermeture quand on clique dans le dropdown
+  options.addEventListener('click', function(e) {
+    e.stopPropagation();
+  });
+  
+  // Initialiser l'état sélectionné
+  function initializeSelected() {
+    const currentValue = input.value;
+    const optionsList = options.querySelectorAll('.option');
+    let foundSelected = false;
+    
+    optionsList.forEach(option => {
+      if (option.getAttribute('data-value') === currentValue) {
+        selectedText.textContent = option.textContent;
+        option.classList.add('selected');
+        foundSelected = true;
+      }
+    });
+    
+    // Si aucune correspondance, réinitialiser à la valeur par défaut
+    if (!foundSelected) {
+      if (selectId.includes('category')) {
+        selectedText.textContent = 'All Categories';
+      } else if (selectId.includes('component')) {
+        selectedText.textContent = 'All Components';
+      } else if (selectId.includes('sort')) {
+        selectedText.textContent = 'Sort by Date (Newest)';
+      }
+    }
+  }
+  
+  initializeSelected();
+}
+
+// Filtrer les options (seulement pour les searchable-select)
+function filterOptions(searchTerm, optionsContainer) {
+  const options = optionsContainer.querySelectorAll('.option');
+  let hasVisibleOptions = false;
+  
+  options.forEach(option => {
+    const text = option.textContent.toLowerCase();
+    if (text.includes(searchTerm.toLowerCase()) || option.getAttribute('data-value') === '') {
+      option.style.display = 'block';
+      hasVisibleOptions = true;
+    } else {
+      option.style.display = 'none';
+    }
+  });
+  
+  // Afficher/masquer le message "no results"
+  let noResults = optionsContainer.querySelector('.no-results');
+  if (!hasVisibleOptions && !noResults) {
+    noResults = document.createElement('div');
+    noResults.className = 'no-results';
+    noResults.textContent = 'No results found';
+    optionsContainer.appendChild(noResults);
+  } else if (hasVisibleOptions && noResults) {
+    noResults.remove();
+  }
+}
+
+// Écouteurs d'événements pour les checkboxes
+document.addEventListener('DOMContentLoaded', function() {
+  const checkboxes = document.querySelectorAll('.post-checkbox');
+  checkboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', updateSelectedCount);
+  });
+  
+  // Initialiser les selects avec recherche
+  initializeSearchableSelect(
+    'category-select',
+    'category-display', 
+    'category-options',
+    'category-search',
+    'category-input',
+    'category-selected-text'
+  );
+  
+  initializeSearchableSelect(
+    'component-select',
+    'component-display',
+    'component-options',
+    'component-search',
+    'component-input',
+    'component-selected-text'
+  );
+  
+  // Initialiser le select de tri (sans recherche)
+  initializeSearchableSelect(
+    'sort-select',
+    'sort-display',
+    'sort-options',
+    null, // Pas de champ de recherche
+    'sort-input',
+    'sort-selected-text'
+  );
+});
+</script>
+
+{% endblock content %}

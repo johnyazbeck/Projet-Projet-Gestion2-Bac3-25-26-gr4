@@ -1,0 +1,8 @@
+# Export JSON de tous les articles
+GET /api/export/posts/?format=json
+
+# Export CSV des articles publiés
+GET /api/export/posts/?format=csv&status=published
+
+# Export JSON des articles d'une catégorie spécifique
+GET /api/export/posts/?format=json&category=1

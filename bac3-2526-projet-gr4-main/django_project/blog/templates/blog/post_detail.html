@@ -1,0 +1,771 @@
+{% extends "blog/base.html" %}
+{% block content %}
+<div class="container-fluid px-0">
+    <article class="content-section-full">
+
+      <!-- Update/Delete Buttons -->
+      {% if object.author == user or user.is_superuser %}
+      <div class="d-flex justify-content-end mb-4">
+        <a class="btn btn-secondary btn-sm mr-2" href="{% url 'post-update' object.id %}">
+          <i class="bi bi-pencil-square"></i> Update
+        </a>
+        <a class="btn btn-danger btn-sm" href="{% url 'post-delete' object.id %}">
+          <i class="bi bi-trash"></i> Delete
+        </a>
+      </div>
+      {% endif %}
+
+      <h1 class="article-title-full mb-4"><i class="bi bi-file-earmark-text"></i> {{ object.title }}</h1>
+
+      <!-- Article Cards - pleine largeur -->
+      <div class="card-full mb-4">
+        <div class="card-header-full bg-light">
+          <h2 class="mb-0"><i class="bi bi-lightbulb"></i> Article</h2>
+        </div>
+        <div class="card-body-full ck-content-full">
+          {{ object.summary|safe }}
+        </div>
+      </div>
+
+      <div class="card-full mb-4">
+        <div class="card-header-full bg-light">
+          <h2 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Detailed Problem Description</h2>
+        </div>
+        <div class="card-body-full ck-content-full">
+          {{ object.problem_description|safe }}
+        </div>
+      </div>
+
+      <div class="card-full mb-5">
+        <div class="card-header-full bg-light">
+          <h2 class="mb-0"><i class="bi bi-check-circle"></i> Solution and Resolution</h2>
+        </div>
+        <div class="card-body-full ck-content-full">
+          {{ object.content|safe }}
+        </div>
+      </div>
+
+      <!-- Rating Section -->
+      <div class="rating-section-full mt-5">
+        <div class="card-full">
+          <div class="card-header-full bg-light">
+            <h3 class="mb-0"><i class="bi bi-star"></i> Rate this Article</h3>
+          </div>
+          <div class="card-body-full text-center">
+            {% if user.is_authenticated %}
+            <div class="rating-widget">
+              <div class="stars mb-4">
+                {% for i in "12345" %}
+                <span class="star" data-rating="{{ i }}" style="cursor:pointer; font-size:2.5rem;">
+                  <i class="bi bi-star{% if user_rating and i|add:0 <= user_rating %}fill text-warning{% endif %}"></i>
+                </span>
+                {% endfor %}
+              </div>
+              <div class="rating-stats">
+                <p class="mb-2">
+                  <strong>Average Rating:</strong>
+                  <span class="text-warning"><i class="bi bi-star-fill"></i> {{ object.rating|default:"0.0"|floatformat:1 }}</span>
+                </p>
+                <p class="text-muted">Based on {{ object.ratings.count }} rating{{ object.ratings.count|pluralize }}</p>
+              </div>
+            </div>
+            {% else %}
+            <div class="alert alert-info text-center">
+              <a href="{% url 'login' %}">Log in</a> to rate this article.
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Metadata & Technical Info -->
+      <div class="row mt-5 g-4">
+        <div class="col-xl-6">
+          <div class="card-full">
+            <div class="card-body-full">
+              <h4 class="card-title"><i class="bi bi-info-circle"></i> Article Information</h4>
+              <div class="info-grid">
+                <div class="info-item">
+                  <strong><i class="bi bi-flag"></i> Status:</strong>
+                  <span class="badge-full badge-{% if object.status == 'published' %}success{% elif object.status == 'draft' %}secondary{% elif object.status == 'archived' %}warning{% else %}info{% endif %}">
+                    {{ object.get_status_display }}
+                  </span>
+                </div>
+                <div class="info-item">
+                  <strong><i class="bi bi-person"></i> Author:</strong> {{ object.author }}
+                </div>
+                <div class="info-item">
+                  <strong><i class="bi bi-calendar-event"></i> Posted:</strong> {{ object.date_posted|date:"F d, Y" }}
+                </div>
+                <div class="info-item">
+                  <strong><i class="bi bi-eye"></i> Views:</strong> {{ object.view_count }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-6">
+          <div class="card-full">
+            <div class="card-body-full">
+              <h4 class="card-title"><i class="bi bi-gear"></i> Technical Information</h4>
+              <div class="info-grid">
+                <div class="info-item-full">
+                  <strong><i class="bi bi-tags"></i> Technical Categories:</strong>
+                  <div class="tags-container">
+                    {% if object.categories.all %}
+                      {% for category in object.categories.all %}
+                        <span class="badge-full badge-primary"><i class="bi bi-check-circle-fill"></i> {{ category.name }}</span>
+                      {% endfor %}
+                    {% else %}
+                      <span class="text-muted">None selected</span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="info-item-full">
+                  <strong><i class="bi bi-hdd-network"></i> ICT Components:</strong>
+                  <div class="tags-container">
+                    {% if object.components.all %}
+                      {% for component in object.components.all %}
+                        <span class="badge-full badge-info"><i class="bi bi-check-circle-fill"></i> {{ component.name }}</span>
+                      {% endfor %}
+                    {% else %}
+                      <span class="text-muted">None selected</span>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comments Section -->
+      <div class="comments-section-full mt-5">
+        <div class="card-full">
+          <div class="card-header-full bg-light">
+            <h3 class="mb-0"><i class="bi bi-chat-text"></i> Comments</h3>
+          </div>
+          <div class="card-body-full">
+            {% if user.is_authenticated %}
+            <form method="POST" action="{% url 'add-comment' object.id %}" class="mb-4">
+              {% csrf_token %}
+              <textarea name="content" class="form-control-full mb-3" rows="4" placeholder="Add your comment..." required></textarea>
+              <button type="submit" class="btn btn-primary"><i class="bi bi-send"></i> Post Comment</button>
+            </form>
+            {% else %}
+            <div class="alert alert-info">
+              <a href="{% url 'login' %}">Log in</a> to post a comment.
+            </div>
+            {% endif %}
+
+            <div class="comments-list">
+              {% for comment in object.comments.all %}
+              {% if comment.is_active %}
+              <div class="comment-item-full border-bottom pb-4 mb-4 d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                  <div class="comment-content mb-3">{{ comment.content|linebreaks }}</div>
+                  <div class="comment-meta text-muted">
+                    <i class="bi bi-person"></i> {{ comment.author }} 
+                    <i class="bi bi-clock ms-3"></i> {{ comment.created_date|date:"F d, Y H:i" }}
+                    {% if comment.is_solution %}
+                    <span class="badge-full badge-success ms-3"><i class="bi bi-check-circle"></i> Solution</span>
+                    {% endif %}
+                  </div>
+                </div>
+                {% if user == comment.author or user.is_superuser %}
+                <form method="POST" action="{% url 'delete-comment' comment.id %}" class="ms-3">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Delete comment?')">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
+                {% endif %}
+              </div>
+              {% endif %}
+              {% empty %}
+              <div class="text-center text-muted py-5">
+                <i class="bi bi-chat-dots display-4 d-block mb-3"></i>
+                <p class="h5">No comments yet!</p>
+                <p class="text-muted">Be the first to comment on this article.</p>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- History -->
+      <div class="history-section mt-5">
+        <div class="card-full">
+          <div class="card-header-full bg-light">
+            <h4 class="mb-0"><i class="bi bi-clock-history"></i> History</h4>
+          </div>
+          <div class="card-body-full">
+            <div class="history-list">
+              <div class="history-current mb-3">
+                <i class="bi bi-circle-fill text-danger me-2"></i>
+                <strong>Current version:</strong> {{ object.date_posted|date:"F d, Y H:i" }}
+              </div>
+              
+              {% if object.history.all %}
+              <h5 class="mb-3">Previous versions:</h5>
+              <ul class="list-unstyled">
+                {% for h in object.history.all|dictsortreversed:"modified_date" %}
+                <li class="mb-2">
+                  <a href="{% url 'post-history-view' h.id %}" class="text-decoration-none">
+                    <i class="bi bi-clock-history me-2"></i>
+                    {{ h.modified_date|date:"F d, Y H:i" }}
+                  </a>
+                </li>
+                {% endfor %}
+              </ul>
+              {% else %}
+              <p class="text-muted mb-0">No previous versions available.</p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact Footer -->
+      <div class="contact-footer mt-5 pt-4 border-top text-center">
+        <p class="mb-2">
+          <i class="bi bi-envelope me-2"></i>
+          Contact: <a href="mailto:john.yazbeck@helb-prigogine.be">john.yazbeck@helb-prigogine.be</a>
+        </p>
+        <p class="text-muted small">
+          <i class="bi bi-info-circle me-1"></i>
+          Last modified: {{ object.last_modified|date:"F d, Y H:i" }}
+        </p>
+      </div>
+
+    </article>
+</div>
+
+<!-- Floating Export PDF Button -->
+<div class="floating-export-single" style="position: fixed; bottom: 40px; right: 40px; z-index: 1000;">
+  <button type="button" class="btn btn-primary btn-lg shadow-lg" onclick="exportSinglePdf()" 
+          style="border-radius: 50px; padding: 12px 24px; box-shadow: 0 6px 15px rgba(0,0,0,0.2);">
+    <i class="bi bi-file-earmark-pdf me-2"></i> Export PDF
+  </button>
+</div>
+
+<!-- JavaScript for Rating -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const stars = document.querySelectorAll('.star');
+  const ratingWidget = document.querySelector('.rating-widget');
+  stars.forEach(star => {
+    star.addEventListener('click', () => ratePost({{ object.id }}, star.dataset.rating));
+    star.addEventListener('mouseover', () => highlightStars(star.dataset.rating));
+  });
+  if (ratingWidget) ratingWidget.addEventListener('mouseleave', resetStars);
+
+  function highlightStars(rating){
+    stars.forEach(star => star.querySelector('i').className = star.dataset.rating <= rating ? 'bi bi-star-fill text-warning' : 'bi bi-star');
+  }
+  function resetStars(){
+    const userRating = {{ user_rating|default:0 }};
+    stars.forEach(star => star.querySelector('i').className = star.dataset.rating <= userRating ? 'bi bi-star-fill text-warning' : 'bi bi-star');
+  }
+});
+
+function ratePost(postId, rating){
+  const formData = new URLSearchParams();
+  formData.append('rating', rating);
+  formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+  fetch(`/post/${postId}/rate/`, {
+    method:'POST',
+    headers:{'X-Requested-With':'XMLHttpRequest'},
+    body: formData
+  })
+  .then(res=>res.json())
+  .then(data=>{
+    if(data.success){
+      document.querySelector('.rating-stats').innerHTML=`
+        <p class="mb-2"><strong>Average Rating:</strong> 
+          <span class="text-warning"><i class="bi bi-star-fill"></i> ${data.average_rating}</span>
+        </p>
+        <p class="text-muted">Based on ${data.total_ratings} rating${data.total_ratings!==1?'s':''}</p>`;
+      document.querySelectorAll('.star').forEach(s=>s.querySelector('i').className = 
+        s.dataset.rating <= data.user_rating ? 'bi bi-star-fill text-warning':'bi bi-star');
+      showAlert('Rating submitted successfully!','success');
+    }
+  }).catch(()=>showAlert('Error submitting rating.','danger'));
+}
+
+function showAlert(message,type){
+  const existing = document.querySelectorAll('.rating-alert'); 
+  existing.forEach(a=>a.remove());
+  const div = document.createElement('div'); 
+  div.className=`alert alert-${type} alert-dismissible fade show mt-3 rating-alert`;
+  div.innerHTML=`${message}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
+  document.querySelector('.rating-widget')?.appendChild(div);
+  setTimeout(()=>div.remove(),4000);
+}
+
+function exportSinglePdf(){
+  const form = document.createElement('form'); 
+  form.method='POST'; 
+  form.action="{% url 'export-posts-pdf' %}";
+  form.innerHTML=`<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+  <input type="hidden" name="selected_posts" value="{{ object.id }}">`;
+  document.body.appendChild(form); 
+  form.submit(); 
+  form.remove();
+}
+</script>
+
+<style>
+/* ===== POLICES GLOBALES ===== */
+* {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ===== LAYOUT PLEINE LARGEUR ===== */
+.container-fluid {
+  max-width: 100%;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.content-section-full {
+  background: white;
+  padding: 3rem 2.5rem;
+  margin: 0 auto;
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* ===== TITRES ===== */
+.article-title-full {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #0F3557;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 3px solid #2F6DA3;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.card-header-full h2,
+.card-header-full h3,
+.card-header-full h4 {
+  color: #0F3557;
+  font-weight: 600;
+  margin: 0;
+  font-size: 1.5rem;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.card-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #0F3557;
+  margin-bottom: 1.5rem;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* ===== CARTES PLEINE LARGEUR ===== */
+.card-full {
+  border: 1px solid #e1e8ed;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  width: 100%;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.card-header-full {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #e1e8ed;
+  font-size: 1rem;
+}
+
+.card-body-full {
+  padding: 2rem;
+  width: 100%;
+}
+
+/* ===== CONTENU CKEDITOR PLEINE LARGEUR ===== */
+.ck-content-full {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: #333;
+  width: 100%;
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+.ck-content-full h1, 
+.ck-content-full h2, 
+.ck-content-full h3, 
+.ck-content-full h4, 
+.ck-content-full h5, 
+.ck-content-full h6 {
+  color: #0F3557;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+  width: 100%;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.ck-content-full h1 { 
+    font-size: 2rem; 
+    font-weight: 800;
+}
+.ck-content-full h2 { 
+    font-size: 1.75rem; 
+    font-weight: 700;
+}
+.ck-content-full h3 { 
+    font-size: 1.5rem; 
+    font-weight: 600;
+}
+.ck-content-full h4 { 
+    font-size: 1.25rem; 
+    font-weight: 600;
+}
+.ck-content-full h5 { 
+    font-size: 1.125rem; 
+    font-weight: 600;
+}
+.ck-content-full h6 { 
+    font-size: 1rem; 
+    font-weight: 600;
+}
+
+.ck-content-full p {
+  margin-bottom: 1.5rem;
+  width: 100%;
+  font-size: 1.1rem;
+  line-height: 1.8;
+}
+
+.ck-content-full strong {
+  font-weight: 700;
+  color: #0F3557;
+}
+
+.ck-content-full em {
+  font-style: italic;
+}
+
+.ck-content-full u {
+  text-decoration: underline;
+}
+
+.ck-content-full ul,
+.ck-content-full ol {
+  padding-left: 2.5rem;
+  margin-bottom: 1.5rem;
+  width: 100%;
+  font-size: 1.1rem;
+}
+
+.ck-content-full li {
+  margin-bottom: 0.75rem;
+  line-height: 1.6;
+}
+
+.ck-content-full a {
+  color: #2F6DA3;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.ck-content-full a:hover {
+  text-decoration: underline;
+  color: #0F3557;
+}
+
+.ck-content-full blockquote {
+  border-left: 4px solid #2F6DA3;
+  padding: 1rem 1.5rem;
+  margin: 2rem 0;
+  background: #f8f9fa;
+  border-radius: 0 8px 8px 0;
+  width: 100%;
+  font-style: italic;
+  font-size: 1.1rem;
+}
+
+.ck-content-full table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 2rem 0;
+  font-size: 1rem;
+}
+
+.ck-content-full th,
+.ck-content-full td {
+  padding: 1rem;
+  border: 1px solid #e1e8ed;
+  text-align: left;
+  font-size: 1rem;
+}
+
+.ck-content-full th {
+  background: #0F3557;
+  color: white;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.ck-content-full tr:nth-child(even) {
+  background: #f8f9fa;
+}
+
+/* ===== FORMULAIRES PLEINE LARGEUR ===== */
+.form-control-full {
+  width: 100%;
+  padding: 1rem;
+  border: 1px solid #e1e8ed;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.form-control-full:focus {
+  border-color: #2F6DA3;
+  box-shadow: 0 0 0 0.2rem rgba(47, 109, 163, 0.25);
+}
+
+/* ===== BADGES PLEINE LARGEUR ===== */
+.badge-full {
+  font-size: 0.9rem;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  margin-right: 0.5rem;
+  margin-bottom: 0.5rem;
+  display: inline-block;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.badge-primary {
+  background: linear-gradient(135deg, #2F6DA3, #0F3557);
+  color: white;
+}
+
+.badge-info {
+  background: linear-gradient(135deg, #17a2b8, #0d6efd);
+  color: white;
+}
+
+.badge-success {
+  background: linear-gradient(135deg, #28a745, #198754);
+  color: white;
+}
+
+/* ===== SECTIONS SPECIFIQUES ===== */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+  font-size: 1rem;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 1rem;
+}
+
+.info-item strong {
+  color: #0F3557;
+  font-weight: 600;
+}
+
+.info-item-full {
+  width: 100%;
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+}
+
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  width: 100%;
+}
+
+.comments-section-full {
+  width: 100%;
+}
+
+.comment-item-full {
+  width: 100%;
+  padding-right: 1rem;
+}
+
+.comment-content {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #333;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.comment-meta {
+  font-size: 0.9rem;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* ===== HISTORY SECTION ===== */
+.history-list {
+  width: 100%;
+  font-size: 1rem;
+}
+
+.history-current {
+  font-size: 1.1rem;
+  color: #dc3545;
+  font-weight: 500;
+}
+
+/* ===== CONTACT FOOTER ===== */
+.contact-footer {
+  width: 100%;
+  padding: 2rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+  margin-top: 3rem;
+  font-size: 1rem;
+}
+
+.contact-footer a {
+  color: #2F6DA3;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.contact-footer a:hover {
+  text-decoration: underline;
+}
+
+/* ===== BOUTON FLOTTANT ===== */
+.floating-export-single .btn-lg {
+  transition: all 0.3s;
+  font-family: 'Segoe UI', sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.floating-export-single .btn-lg:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3) !important;
+}
+
+/* ===== RATING SECTION ===== */
+.star i {
+  font-size: 2.5rem;
+  transition: color 0.2s;
+}
+
+.rating-stats p {
+  font-size: 1.1rem;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1200px) {
+  .content-section-full {
+    padding: 2.5rem 2rem;
+  }
+  
+  .article-title-full {
+    font-size: 2.2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .content-section-full {
+    padding: 2rem 1.5rem;
+  }
+  
+  .article-title-full {
+    font-size: 1.8rem;
+  }
+  
+  .card-header-full {
+    padding: 1.25rem 1.5rem;
+  }
+  
+  .card-header-full h2 {
+    font-size: 1.3rem;
+  }
+  
+  .card-body-full {
+    padding: 1.5rem;
+  }
+  
+  .ck-content-full {
+    font-size: 1rem;
+  }
+  
+  .ck-content-full p {
+    font-size: 1rem;
+  }
+  
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 576px) {
+  .content-section-full {
+    padding: 1.5rem 1rem;
+  }
+  
+  .article-title-full {
+    font-size: 1.6rem;
+  }
+  
+  .floating-export-single {
+    bottom: 20px;
+    right: 20px;
+  }
+  
+  .floating-export-single .btn-lg {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+  }
+  
+  .card-header-full h2 {
+    font-size: 1.2rem;
+  }
+  
+  .star i {
+    font-size: 2rem;
+  }
+}
+
+/* Animation pour le contenu */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card-full,
+.comment-item-full,
+.history-section {
+  animation: fadeIn 0.5s ease-out;
+}
+</style>
+
+{% endblock content %}

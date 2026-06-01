@@ -1,0 +1,277 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | Infrabel Knowledge Base{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+<style>
+/* ===== LOGO & BRANDING STYLES ===== */
+#header {
+    padding: 0 20px !important;
+}
+
+#branding {
+    display: flex !important;
+    align-items: center !important;
+    gap: 15px !important;
+}
+
+/* Logo Infrabel */
+.infrabel-admin-logo {
+    height: 35px !important;
+    transition: all 0.3s ease !important;
+}
+
+.infrabel-admin-logo:hover {
+    opacity: 0.9 !important;
+    transform: translateY(-1px) !important;
+}
+
+/* ICT cliquable avec icône */
+.admin-brand-text {
+    color: white !important;
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+    text-decoration: none !important;
+    transition: all 0.2s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 5px 0 !important;
+}
+
+.admin-brand-text:hover {
+    color: #02bcf0 !important;
+    text-decoration: none !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Séparateur et Admin Panel */
+.admin-panel-link {
+    color: rgba(255, 255, 255, 0.8) !important;
+    font-size: 0.9rem !important;
+    text-decoration: none !important;
+    transition: all 0.2s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 5px !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.3) !important;
+    padding-left: 15px !important;
+    margin-left: 10px !important;
+}
+
+.admin-panel-link:hover {
+    color: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* ===== USER TOOLS ANIMATIONS ===== */
+#user-tools {
+    font-size: 0.9rem !important;
+}
+
+#user-tools a,
+#user-tools a:visited,
+#user-tools form button {
+    transition: all 0.2s ease !important;
+    padding: 4px 8px !important;
+    border-radius: 4px !important;
+    text-decoration: none !important;
+}
+
+#user-tools a:hover,
+#user-tools form button:hover {
+    color: #02bcf0 !important;
+    background-color: rgba(2, 188, 240, 0.1) !important;
+    transform: translateY(-1px) !important;
+    text-decoration: none !important;
+}
+
+/* Style spécifique pour les boutons avec icônes */
+#user-tools a i,
+#user-tools form button i {
+    margin-right: 5px !important;
+    font-size: 0.9em !important;
+}
+
+/* Style pour le bouton logout */
+#user-tools form button {
+    background: none !important;
+    border: none !important;
+    color: white !important;
+    font: inherit !important;
+    cursor: pointer !important;
+    margin: 0 !important;
+    padding: 4px 8px !important;
+}
+
+#user-tools form button:hover {
+    background-color: rgba(2, 188, 240, 0.1) !important;
+}
+
+/* ===== ICONES POUR LES CHAMPS DE FORMULAIRE ===== */
+/* Icônes Bootstrap pour les champs de formulaire */
+.form-row {
+    position: relative !important;
+}
+
+/* Icône pour les champs texte */
+.form-row input[type="text"] + label::before {
+    content: "\F4CA" !important; /* bi-text-left */
+    font-family: "bootstrap-icons" !important;
+    position: absolute !important;
+    left: 10px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    color: #213A53 !important;
+    font-size: 16px !important;
+    z-index: 1 !important;
+}
+
+/* Icône pour les champs email */
+.form-row input[type="email"] + label::before {
+    content: "\F32C" !important; /* bi-envelope */
+    font-family: "bootstrap-icons" !important;
+    position: absolute !important;
+    left: 10px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    color: #213A53 !important;
+    font-size: 16px !important;
+    z-index: 1 !important;
+}
+
+/* Icône pour les champs password */
+.form-row input[type="password"] + label::before {
+    content: "\F45E" !important; /* bi-lock */
+    font-family: "bootstrap-icons" !important;
+    position: absolute !important;
+    left: 10px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    color: #213A53 !important;
+    font-size: 16px !important;
+    z-index: 1 !important;
+}
+
+/* Ajustement du padding pour les champs avec icônes */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+.vTextField {
+    padding-left: 35px !important;
+}
+
+/* Ajouter des icônes aux liens d'action avec Bootstrap Icons */
+.object-tools a::before {
+    font-family: "bootstrap-icons" !important;
+    margin-right: 6px !important;
+    font-size: 0.9em !important;
+}
+
+.object-tools a.addlink::before {
+    content: "\F4FE" !important; /* bi-plus-circle */
+}
+
+.object-tools a.changelink::before {
+    content: "\F4CB" !important; /* bi-pencil */
+}
+
+.object-tools a.deletelink::before {
+    content: "\F5DE" !important; /* bi-trash */
+}
+
+.object-tools a.historylink::before {
+    content: "\F292" !important; /* bi-clock-history */
+}
+
+/* Icônes pour les actions des tableaux avec Bootstrap Icons */
+td.field-__str__ a::before,
+td.field-get_absolute_url a::before {
+    font-family: "bootstrap-icons" !important;
+    margin-right: 4px !important;
+    font-size: 0.8em !important;
+}
+
+/* Réduire l'espacement pour les petits écrans */
+@media (max-width: 768px) {
+    .infrabel-admin-logo {
+        height: 28px !important;
+    }
+    
+    .admin-brand-text {
+        font-size: 0.9rem !important;
+    }
+    
+    .admin-panel-link {
+        font-size: 0.8rem !important;
+        padding-left: 10px !important;
+        margin-left: 8px !important;
+    }
+    
+    #user-tools a,
+    #user-tools form button {
+        padding: 3px 6px !important;
+        font-size: 0.8rem !important;
+    }
+}
+</style>
+{% endblock %}
+
+{% block branding %}
+<div id="branding">
+    <!-- Logo Infrabel à gauche -->
+    <a href="{% url 'blog-home' %}">
+        <img src="https://seekvectorlogo.com/wp-content/uploads/2018/04/infrabel-vector-logo.png" 
+             alt="Infrabel" 
+             class="infrabel-admin-logo">
+    </a>
+    
+    <!-- ICT cliquable avec icône Bootstrap -->
+    <a href="{% url 'blog-home' %}" class="admin-brand-text">
+        <i class="bi bi-book"></i> ICT Knowledge Base
+    </a>
+    
+    <!-- Admin Panel avec icône Bootstrap -->
+    <span class="admin-panel-link">
+        <i class="bi bi-shield-check"></i> Admin Panel
+    </span>
+</div>
+{% endblock %}
+
+{% block userlinks %}
+    {% if user.is_active and user.is_staff %}
+        {% url 'django-admindocs-docroot' as docsroot %}
+        {% if docsroot %}
+            <a href="{{ docsroot }}"><i class="bi bi-question-circle"></i> Documentation</a>
+        {% endif %}
+    {% endif %}
+    {% if user.has_usable_password %}
+        <a href="{% url 'admin:password_change' %}"><i class="bi bi-key"></i> Change password</a>
+    {% endif %}
+    <form id="logout-form" method="post" action="{% url 'admin:logout' %}">
+        {% csrf_token %}
+        <button type="submit"><i class="bi bi-box-arrow-right"></i> Log out</button>
+    </form>
+{% endblock %}
+
+{% block nav-global %}
+{{ block.super }}
+{% endblock %}
+
+{% block footer %}
+<div id="footer">
+    <div style="max-width: 1400px; margin: 0 auto;">
+        <p>
+            <i class="bi bi-shield-check"></i> 
+            <strong>ICT Knowledge Base</strong> - Admin Panel v1.0
+            <br>
+            <small>Secure management interface for knowledge base content</small>
+        </p>
+    </div>
+</div>
+{{ block.super }}
+{% endblock %}

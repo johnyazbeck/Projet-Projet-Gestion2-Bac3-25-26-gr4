@@ -1,0 +1,78 @@
+{% extends "blog/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="content-section">
+  <h1 class="mb-4 text-primary">About this Project</h1>
+
+  <p>This web application is a collaborative ICT knowledge base created to help IT teams efficiently store, organize, and share technical and operational knowledge. In professional IT environments, it is crucial to capitalize on accumulated expertise, and a well-structured knowledge base enables teams to quickly find solutions, follow best practices, and ensure continuity of services even when personnel changes occur.</p>
+
+  <p>The application allows users to create, modify, and consult ICT knowledge articles, each containing detailed information about encountered problems, solutions applied, and change history. Articles can be categorized by technical fields such as infrastructure, networking, software, or hardware, and can be optionally associated with ICT components like servers, databases, routers, or business applications.</p>
+
+  <p>Advanced features include an intuitive search engine, dynamic filtering by categories, authors, or components, and ranking articles by popularity or relevance. The system also supports exporting articles and their metadata in PDF, JSON, or CSV formats, as well as automated exports via API for integration with other tools.</p>
+
+  <p>User access is managed according to roles: administrators have full control, contributors can create and edit content, while readers can view articles without modifying them. This structure ensures both collaboration and data integrity within the knowledge base.</p>
+
+  <p>The project showcases skills in full-stack web development, scalable relational database design, organization of technical content, and implementation of customizable user roles. It also emphasizes best practices in project management, documentation, and collaborative teamwork.</p>
+
+  <p class="font-weight-bold text-primary">Developed by Y. John, B. Anas, Z. Osman, and S. Amir – the software developers.</p>
+
+  <div class="text-center mt-5">
+    <a href="{% url 'blog-home' %}">
+      <img src="https://seekvectorlogo.com/wp-content/uploads/2018/04/infrabel-vector-logo.png" 
+           alt="ICT Knowledge Base"
+           class="img-fluid shadow-sm" 
+           style="max-width: 300px; transition: transform 0.3s ease; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));"
+           onmouseover="this.style.transform='scale(1.05)'" 
+           onmouseout="this.style.transform='scale(1)'">
+    </a>
+    <p class="mt-2 text-muted" style="color: #213A53 !important;">
+      <i class="bi bi-book me-1"></i> ICT Knowledge Base
+    </p>
+  </div>
+
+  <div class="mt-4 text-center">
+    <p class="text-danger font-weight-bold">If you encounter any issues, please contact us at <a href="mailto:john.yazbeck@helb-prigogine.be">john.yazbeck@helb-prigogine.be</a>.</p>
+  </div>
+</div>
+
+<!-- Style pour améliorer l'affichage du logo -->
+<style>
+  .content-section {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  
+  .text-primary {
+    color: #213A53 !important;
+  }
+  
+  .text-secondary {
+    color: #02bcf0 !important;
+  }
+  
+  .text-muted {
+    color: #66788A !important;
+  }
+  
+  .text-danger {
+    color: #E5004E !important;
+  }
+  
+  a {
+    color: #02bcf0;
+    text-decoration: none;
+  }
+  
+  a:hover {
+    color: #0099CC;
+    text-decoration: underline;
+  }
+  
+  p {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
+  }
+</style>
+{% endblock content %}

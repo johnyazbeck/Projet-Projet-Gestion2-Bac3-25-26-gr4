@@ -1,0 +1,252 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" 
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <link rel="stylesheet" type="text/css" href="{% static 'blog/main.css' %}">
+
+    {% if title %}
+        <title>ICT Knowledge Base - {{ title }}</title>
+    {% else %}
+        <title>ICT Knowledge Base</title>
+    {% endif %}
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+    <!-- Style pour le logo Infrabel -->
+    <style>
+        .infrabel-logo {
+            height: 40px;
+            transition: all 0.3s ease;
+        }
+        .infrabel-logo:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        .navbar-brand {
+            padding: 5px 0;
+        }
+        @media (max-width: 768px) {
+            .infrabel-logo {
+                height: 35px;
+            }
+            .brand-text {
+                font-size: 0.9rem;
+                margin-left: 5px;
+            }
+        }
+        .brand-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .brand-text {
+            color: white;
+            font-size: 1rem;
+            font-weight: 500;
+            border-left: 1px solid rgba(255,255,255,0.3);
+            padding-left: 15px;
+            margin: 0;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        .brand-text:hover {
+            color: #02bcf0 !important;
+            text-decoration: none;
+            transform: translateY(-1px);
+        }
+        .brand-link {
+            text-decoration: none;
+            color: inherit;
+        }
+        .brand-link:hover {
+            text-decoration: none;
+        }
+        
+        /* Styles pour tous les liens du menu */
+        .site-header .navbar-nav .nav-link {
+            color: #ecf0f1;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+        
+        .site-header .navbar-nav .nav-link:hover {
+            color: #02bcf0 !important;
+            background-color: rgba(2, 188, 240, 0.1);
+            transform: translateY(-1px);
+        }
+        
+        .site-header .navbar-nav .nav-link.active {
+            color: #02bcf0 !important;
+            background-color: rgba(2, 188, 240, 0.15);
+        }
+        
+        /* Style pour le dropdown */
+        .nav-item.dropdown .nav-link:hover {
+            color: #02bcf0 !important;
+            transform: translateY(-1px);
+        }
+        
+        /* Style pour le bouton de logout */
+        .btn-link.nav-item.nav-link {
+            color: #ecf0f1 !important;
+            transition: all 0.2s ease;
+            padding: 0.5rem 1rem !important;
+            border-radius: 4px;
+        }
+        
+        .btn-link.nav-item.nav-link:hover {
+            color: #02bcf0 !important;
+            background-color: rgba(2, 188, 240, 0.1);
+            transform: translateY(-1px);
+            text-decoration: none;
+        }
+        
+        /* Style pour les items du dropdown */
+        .dropdown-item {
+            transition: all 0.2s ease;
+            color: #213A53;
+        }
+        
+        .dropdown-item:hover {
+            background-color: rgba(2, 188, 240, 0.1);
+            color: #02bcf0 !important;
+            transform: translateX(3px);
+        }
+        
+        /* Style pour le bouton du toggler */
+        .navbar-toggler {
+            border-color: rgba(255, 255, 255, 0.3);
+            transition: all 0.2s ease;
+        }
+        
+        .navbar-toggler:hover {
+            border-color: #02bcf0;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+      <nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top">
+        <div class="container">
+          <div class="brand-container">
+            <a class="navbar-brand mr-4" href="{% url 'blog-home' %}">
+              <img src="https://seekvectorlogo.com/wp-content/uploads/2018/04/infrabel-vector-logo.png" 
+                   alt="Infrabel" 
+                   class="infrabel-logo">
+            </a>
+            <a href="{% url 'blog-home' %}" class="brand-link">
+              <span class="brand-text">ICT Knowledge Base</span>
+            </a>
+          </div>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle" 
+                  aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarToggle">
+            <div class="navbar-nav mr-auto">
+              <!-- Home supprimé comme demandé -->
+              <a class="nav-item nav-link" href="{% url 'blog-about' %}">
+                <i class="bi bi-info-circle"></i> About
+              </a>
+              {% if user.is_authenticated and user.is_staff %}
+              <!-- Management menu visible uniquement pour les admins (is_staff) -->
+              <div class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <i class="bi bi-gear"></i> Management
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                  <a class="dropdown-item" href="{% url 'category-list' %}">
+                    <i class="bi bi-tags"></i> Categories
+                  </a>
+                  <a class="dropdown-item" href="{% url 'component-list' %}">
+                    <i class="bi bi-hdd-stack"></i> Components
+                  </a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" href="{% url 'post-create' %}">
+                    <i class="bi bi-plus-circle"></i> New Article
+                  </a>
+                </div>
+              </div>
+              {% endif %}
+            </div>
+            <!-- Navbar Right Side -->
+            <div class="navbar-nav">
+              {% if user.is_authenticated %}
+                {% if user.is_staff or user.is_superuser %}
+                  <a class="nav-item nav-link" href="{% url 'admin:index' %}">
+                    <i class="bi bi-shield-check"></i> Administration
+                  </a>
+                {% endif %}
+                
+                {% if can_add %}
+                  <a class="nav-item nav-link" href="{% url 'post-create' %}">
+                    <i class="bi bi-file-earmark-plus"></i> New Article
+                  </a>
+                {% endif %}
+
+                <a class="nav-item nav-link" href="{% url 'profile' %}">
+                  <i class="bi bi-person-circle"></i> Profile
+                </a>
+
+                <form method="POST" action="{% url 'logout' %}" style="display:inline;">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-link nav-item nav-link">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                  </button>
+                </form>
+
+              {% else %}
+                <a class="nav-item nav-link" href="{% url 'login' %}">
+                  <i class="bi bi-box-arrow-in-right"></i> Login
+                </a>
+                <a class="nav-item nav-link" href="{% url 'register' %}">
+                  <i class="bi bi-person-plus"></i> Register
+                </a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main role="main" class="container" style="margin-top: 80px;">
+      <div class="row">
+        <div class="col-md-12">
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                <i class="bi bi-info-circle me-2"></i>{{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+            {% endfor %}
+          {% endif %}
+          {% block content %}{% endblock %}
+        </div>
+      </div>
+    </main>
+
+    <!-- Optional JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" 
+            integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" 
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" 
+            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" 
+            crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" 
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" 
+            crossorigin="anonymous"></script>
+</body>
+</html>
